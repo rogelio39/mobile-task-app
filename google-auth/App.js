@@ -5,6 +5,8 @@ import * as Google from 'expo-auth-session/providers/google';
 import { useEffect } from 'react';
 import logo from './assets/favicon.png'; // Importa correctamente la imagen
 
+// https://expo.dev/accounts/rogerras/projects/google-auth/builds/8cce13ed-9112-4f48-a35b-ed62ad49bcdd
+
 WebBrowser.maybeCompleteAuthSession();
 
 const androidClientId = "521799423975-rtcrdsgqjci2sqb2op1uk0kia753i3gh.apps.googleusercontent.com";
@@ -12,7 +14,21 @@ const androidClientId = "521799423975-rtcrdsgqjci2sqb2op1uk0kia753i3gh.apps.goog
 export default function App() {
   const config = {
     androidClientId,
+    redirectUri: 'google-auth://oauth2redirect',
   };
+
+  const getUserProfile = async (token) =>{
+    try{
+      const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
+        headers : {Authorization: `Bearer ${token}`}
+      });
+
+      const user = await response.json();
+      console.log("user", user)
+    }catch(error){
+      console.log("error", error);
+    }
+  }
 
   const [request, response, promptAsync] = Google.useAuthRequest(config);
 
@@ -21,6 +37,7 @@ export default function App() {
       const { authentication } = response;
       const token = authentication?.accessToken;
       console.log("Access token:", token);
+      getUserProfile(token)
     }
   };
 

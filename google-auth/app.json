@@ -3,7 +3,7 @@
     "name": "google-auth",
     "slug": "google-auth",
     "version": "1.0.0",
-    "scheme": "google-auth",
+    "scheme": "google-auth",  
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,15 +21,21 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.rogerras.googleauth"
+      "package": "com.rogerras.googleauth",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "google-auth" 
+          }
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "eas": {
-        "projectId": "3869e27d-1df9-461e-8ea7-4c1366ffa84a"
-      }
+      "googleClientId": "521799423975-rtcrdsgqjci2sqb2op1uk0kia753i3gh.apps.googleusercontent.com"
     },
     "owner": "rogerras"
   }
