@@ -1,60 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { useEffect } from 'react';
-import logo from './assets/favicon.png'; // Importa correctamente la imagen
-
-// https://expo.dev/accounts/rogerras/projects/google-auth/builds/8cce13ed-9112-4f48-a35b-ed62ad49bcdd
-
-WebBrowser.maybeCompleteAuthSession();
-
-const androidClientId = "521799423975-rtcrdsgqjci2sqb2op1uk0kia753i3gh.apps.googleusercontent.com";
+import GoogleLogin from './components/googleLogin';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Home from './components/Home';
+import Register from './components/Register';
+// Crear el stack navigator
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const config = {
-    androidClientId,
-    redirectUri: 'google-auth://oauth2redirect',
-  };
 
-  const getUserProfile = async (token) =>{
-    try{
-      const response = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-        headers : {Authorization: `Bearer ${token}`}
-      });
-
-      const user = await response.json();
-      console.log("user", user)
-    }catch(error){
-      console.log("error", error);
-    }
-  }
-
-  const [request, response, promptAsync] = Google.useAuthRequest(config);
-
-  const handleToken = () => {
-    if (response?.type === "success") { // Corrige "sucess" a "success"
-      const { authentication } = response;
-      const token = authentication?.accessToken;
-      console.log("Access token:", token);
-      getUserProfile(token)
-    }
-  };
-
-  useEffect(() => {
-    handleToken();
-  }, [response]);
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.wrapper} onPress={() => promptAsync()}>
-        <Image source={logo} style={styles.brand} />
-        <Text>Sign in with Google</Text>
-        <StatusBar style="auto" />
-      </TouchableOpacity>
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Login" component={GoogleLogin} />
+      </Stack.Navigator>
+      <StatusBar style="auto" />
+    </NavigationContainer>
   );
+  
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -63,16 +32,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  wrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: '#f5f5f5',
-  },
-  brand: {
-    width: 50,
-    height: 50,
-    marginBottom: 10,
-  },
 });
+
