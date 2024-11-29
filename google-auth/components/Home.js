@@ -9,6 +9,10 @@ const Home = () => {
         navigation.navigate('Register');
     };
 
+    const goToCalendar = () => {
+        navigation.navigate('calendario'); // Cambia 'Calendar' por el nombre exacto de la ruta en tu configuración de navegación
+    };
+
     return (
         <View style={styles.homeContainer}>
             <View style={styles.header}>
@@ -33,6 +37,10 @@ const Home = () => {
                     <Text style={styles.featureDescription}>Recibe recordatorios para mantenerte siempre al día.</Text>
                 </View>
             </View>
+
+            <TouchableOpacity onPress={goToCalendar} style={styles.calendarButton}>
+                <Text style={styles.calendarButtonText}>Ir al Calendario</Text>
+            </TouchableOpacity>
 
             <View style={styles.imageSection}>
                 <Image
@@ -96,6 +104,17 @@ const styles = StyleSheet.create({
     featureDescription: {
         fontSize: 16,
         color: '#555',
+    },
+    calendarButton: {
+        marginTop: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 30,
+        backgroundColor: '#28a745',
+        borderRadius: 5,
+    },
+    calendarButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
     imageSection: {
         width: '100%',
