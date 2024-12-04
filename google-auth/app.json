@@ -8,9 +8,6 @@
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
         "newArchEnabled": false,
-        "plugins": [
-            "expo-secure-store"
-        ],
         "splash": {
             "image": "./assets/splash-icon.png",
             "resizeMode": "contain",
