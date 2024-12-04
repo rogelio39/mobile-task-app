@@ -2,7 +2,7 @@ import { MODE, LOCAL_URL, BACKEND_URL } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-// const URL1 = MODE === "DEV" ? LOCAL_URL : BACKEND_URL
+const URL1 = MODE === "DEV" ? LOCAL_URL : BACKEND_URL
 
 console.log(MODE, LOCAL_URL, BACKEND_URL)
 
