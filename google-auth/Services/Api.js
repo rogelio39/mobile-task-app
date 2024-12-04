@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 // const URL1 = MODE === "DEV" ? LOCAL_URL : BACKEND_URL
-const URL1 = 'http://10.0.2.2:5000'
+
 console.log(MODE, LOCAL_URL, BACKEND_URL)
 
 // Obtener todas las tareas
