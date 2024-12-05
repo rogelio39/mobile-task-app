@@ -1,8 +1,8 @@
-import { BACKEND_URL } from '@env'
+// import { BACKEND_URL } from '@env'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const URL1 = "https://tasklist-back.onrender.com"
+const URL1 = "https://mobile-task-app.onrender.com"
 
 
 
