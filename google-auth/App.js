@@ -1,27 +1,35 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import GoogleLogin from './components/googleLogin';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from './components/Home';
+// import NavBar from './navBar'; // Importa tu NavBar
+// import Register from './components/Register';
+// import CalendarTask from './components/CalendarTask';
+// import GoogleLogin from './components/googleLogin';
+import NavBar from './components/navBar'
 import Register from './components/Register';
-import CalendarTask from './components/calendarTask';
+import CalendarTask from './components/CalendarTask'
+import GoogleLogin from './components/googleLogin';
 import { TasksProvider } from './Context/TasksContext';
 import { AuthProvider } from './Context/AuthContext';
-// Crear el stack navigator
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-
-
   return (
     <AuthProvider>
       <TasksProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="calendario" component={CalendarTask} />
+          <Stack.Navigator initialRouteName="Main">
+            {/* NavBar como pantalla principal */}
+            <Stack.Screen
+              name="Main"
+              component={NavBar}
+              options={{ headerShown: false }} // Oculta el header del stack para usar solo el NavBar
+            />
+            {/* Otras pantallas */}
             <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="Calendario" component={CalendarTask} />
             <Stack.Screen name="Login" component={GoogleLogin} />
           </Stack.Navigator>
           <StatusBar style="auto" />
@@ -29,9 +37,7 @@ export default function App() {
       </TasksProvider>
     </AuthProvider>
   );
-
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -41,4 +47,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
