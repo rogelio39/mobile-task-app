@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { useTaskContext } from '../../Context/TasksContext';
-import FormTask from '../formTask/FormTask';
+import { useTaskContext } from '../Context/TasksContext';
+import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
 const URL1 = process.env.REACT_APP_MODE === "DEV" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_BACKEND_URL;
