@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Picker, Button, StyleSheet, Alert } from 'react-native';
-import { useTaskContext } from "../../Context/TasksContext";
+import { useTaskContext } from "../Context/TasksContext";
 
 const FormTask = () => {
     const { addTask } = useTaskContext();
