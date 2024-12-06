@@ -4,14 +4,15 @@ import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
-const URL1 = process.env.REACT_APP_MODE === "DEV" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_BACKEND_URL;
+
+
 
 const Dashboard = () => {
     const [tasksState, setTasksState] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [view, setView] = useState({});
-    const { tasks, removeTask } = useTaskContext();
+    const { tasks, removeTask, completeTask } = useTaskContext();
 
     useEffect(() => {
         setTasksState(tasks);
@@ -36,21 +37,9 @@ const Dashboard = () => {
         }));
     };
 
-    const completeTask = async (taskId) => {
+    const taskComplet = async (taskId) => {
         try {
-            const token = await AsyncStorage.getItem('token');
-            const res = await fetch(`${URL1}/api/tasks/${taskId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ completed: true }),
-            });
-
-            if (!res.ok) throw new Error('Error marking task as completed');
-
-            const updatedTask = await res.json();
+            await completeTask(taskId);
             setTasksState((prevTasks) =>
                 prevTasks.map((task) => (task._id === taskId ? updatedTask : task))
             );

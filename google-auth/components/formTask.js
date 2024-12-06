@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Picker, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { useTaskContext } from "../Context/TasksContext";
+import { Picker } from '@react-native-picker/picker';
 
 const FormTask = () => {
     const { addTask } = useTaskContext();
@@ -14,7 +15,23 @@ const FormTask = () => {
         dueDate: ''
     });
 
+    const validateForm = () => {
+        if (!newTask.title || !newTask.description || !newTask.dueDate) {
+            setError('Todos los campos son obligatorios.');
+            return false;
+        }
+        // Validar formato de la fecha (YYYY-MM-DD)
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(newTask.dueDate)) {
+            setError('La fecha de vencimiento debe estar en formato YYYY-MM-DD.');
+            return false;
+        }
+        return true;
+    };
+
     const handleTaskSubmit = async () => {
+        if (!validateForm()) return;
+
         try {
             const createATask = await addTask(newTask);
             setTasksState([...tasksState, createATask]);
@@ -25,11 +42,11 @@ const FormTask = () => {
                 notes: '',
                 dueDate: ''
             });
+            setError(null);
             Alert.alert('Éxito', 'Tarea añadida correctamente');
         } catch (error) {
             console.error('Error al agregar la tarea:', error);
-            setError(error.message);
-            Alert.alert('Error', 'Error al agregar la tarea');
+            setError('Error al agregar la tarea');
         }
     };
 
@@ -42,7 +59,6 @@ const FormTask = () => {
                 onChangeText={(text) => setNewTask({ ...newTask, title: text })}
                 placeholder="Título"
                 placeholderTextColor="#888"
-                required
             />
             <TextInput
                 style={[styles.input, styles.textarea]}
@@ -52,7 +68,6 @@ const FormTask = () => {
                 placeholderTextColor="#888"
                 multiline
                 numberOfLines={4}
-                required
             />
             <Picker
                 selectedValue={newTask.priority}

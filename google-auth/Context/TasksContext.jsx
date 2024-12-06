@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types"; // Importamos PropTypes
-import { fetchTasks, createTask, updateTask, updateTasksTatus, deleteTask, scheduleEmailReminder } from "../Services/Api";
+import { fetchTasks, createTask, updateTask, updateTasksTatus, deleteTask, completeTask , scheduleEmailReminder } from "../Services/Api";
 
 
 const TasksContext = createContext();
@@ -100,6 +100,11 @@ export const TasksProvider = ({ children }) => {
         await scheduleEmailReminder(email, task)
     }
 
+    const completeTasks = async (id) => {
+        const data = await completeTask(id);
+        setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
+        return data
+    };
 
     const removeTask = async (id) => {
         const data = await deleteTask(id);
@@ -117,6 +122,7 @@ export const TasksProvider = ({ children }) => {
                 removeTask,
                 updateTask,
                 sendEmail,
+                completeTasks,
                 loading,
                 error,
             }}

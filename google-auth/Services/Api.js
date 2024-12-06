@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const URL1 = "https://mobile-task-app.onrender.com"
+const URL1 = "https://tasklist-back.onrender.com"
 
 
 
@@ -139,6 +139,31 @@ const deleteTask = async (id) => {
 };
 
 
+const completeTask = async (taskId) => {
+    try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await fetch(`${URL1}/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ completed: true }),
+        });
+
+        if (!res.ok) throw new Error('Error marking task as completed');
+
+        const updatedTask = await res.json();
+        return updatedTask;
+    } catch (err) {
+        console.log(err.message);
+        return null
+    }
+};
+
+
+
+
 
 //AUTH API
 
@@ -179,4 +204,4 @@ const Login = async (token) => {
 };
 
 
-export { Login, createTask, deleteTask, updateTasksTatus, updateTask, fetchTasksForDate, scheduleEmailReminder, fetchTasks }
+export { Login, createTask, completeTask, deleteTask, updateTasksTatus, updateTask, fetchTasksForDate, scheduleEmailReminder, fetchTasks }
