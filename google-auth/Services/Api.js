@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const URL1 = "https://tasklist-back.onrender.com"
+const URL1 = "https://mobile-task-app.onrender.com"
 
 
 
