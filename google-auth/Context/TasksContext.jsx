@@ -120,7 +120,6 @@ export const TasksProvider = ({ children }) => {
                 modifyTask,
                 modifyStatusTask,
                 removeTask,
-                updateTask,
                 sendEmail,
                 completeTasks,
                 loading,

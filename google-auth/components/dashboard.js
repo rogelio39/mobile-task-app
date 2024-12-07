@@ -4,23 +4,24 @@ import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
-
-
-
 const Dashboard = () => {
     const [tasksState, setTasksState] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [view, setView] = useState({});
-    const { tasks, removeTask, completeTask } = useTaskContext();
+    const { tasks, removeTask, completeTasks } = useTaskContext();
 
+    // Actualiza las tareas en el estado local cuando cambian en el contexto
     useEffect(() => {
-        setTasksState(tasks);
+        if (JSON.stringify(tasks) !== JSON.stringify(tasksState)) {
+            setTasksState(tasks);
+        }
         if (tasks) {
             setLoading(false);
         }
-    }, [tasks]);
+    }, [tasks]); // Solo se ejecutará cuando `tasks` cambie
 
+    // Formatea una fecha para mostrarla en DD/MM/YYYY
     const formatDate = (dateString) => {
         if (!dateString) return 'No tiene fecha para cumplirse';
         const date = new Date(dateString);
@@ -30,6 +31,7 @@ const Dashboard = () => {
         return `${day}/${month}/${year}`;
     };
 
+    // Alterna la vista de detalles de la tarea
     const toggleViewInfo = (taskId) => {
         setView((prevView) => ({
             ...prevView,
@@ -37,11 +39,14 @@ const Dashboard = () => {
         }));
     };
 
+    // Marca una tarea como completada y actualiza el estado local
     const taskComplet = async (taskId) => {
         try {
-            await completeTask(taskId);
+            await completeTasks(taskId);
             setTasksState((prevTasks) =>
-                prevTasks.map((task) => (task._id === taskId ? updatedTask : task))
+                prevTasks.map((task) =>
+                    task._id === taskId ? { ...task, completed: true } : task
+                )
             );
             Toast.show({ type: 'success', text1: 'Tarea completada' });
         } catch (err) {
@@ -50,6 +55,7 @@ const Dashboard = () => {
         }
     };
 
+    // Elimina una tarea del estado local y contexto
     const deleteTask = async (taskId) => {
         try {
             await removeTask(taskId);
@@ -63,6 +69,7 @@ const Dashboard = () => {
         }
     };
 
+    // Agrupa las tareas por fecha de vencimiento
     const groupByDate = (tasks) => {
         return tasks.reduce((acc, task) => {
             const formattedDate = formatDate(task.dueDate);
@@ -91,7 +98,7 @@ const Dashboard = () => {
                             key={task._id}
                             style={[
                                 styles.taskItem,
-                                task.completed && styles.completed,
+                                task.completed && styles.completed, // Aplica estilo para tareas completadas
                             ]}
                             onPress={() => toggleViewInfo(task._id)}
                             onLongPress={() =>
@@ -115,7 +122,7 @@ const Dashboard = () => {
                                     <Text>Estado: {task.completed ? 'Completada' : 'Pendiente'}</Text>
                                     {!task.completed && (
                                         <TouchableOpacity
-                                            onPress={() => completeTask(task._id)}
+                                            onPress={() => taskComplet(task._id)}
                                             style={styles.completeButton}
                                         >
                                             <Text style={styles.buttonText}>Completar</Text>
@@ -138,7 +145,7 @@ const styles = StyleSheet.create({
     group: { marginBottom: 20 },
     date: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
     taskItem: { padding: 15, backgroundColor: '#f5f5f5', marginBottom: 10, borderRadius: 5 },
-    completed: { backgroundColor: '#d3ffd3' },
+    completed: { backgroundColor: '#d3ffd3' }, // Estilo para tareas completadas
     taskTitle: { fontSize: 16, fontWeight: 'bold' },
     taskDetails: { marginTop: 10 },
     completeButton: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, marginTop: 10 },
