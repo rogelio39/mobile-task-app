@@ -15,10 +15,10 @@ export const createTask = async (req, res) => {
         }
 
         // Si dueDate es anterior a la fecha de creación, ajustamos la fecha de vencimiento
-        if (dueDateObj <= createdDate) {
-            console.log('La fecha de vencimiento está en el pasado, ajustando a un día después');
-            dueDateObj.setDate(createdDate.getDate() + 1);  // Ajustamos a 1 día después de la fecha actual
-        }
+        // if (dueDateObj <= createdDate) {
+        //     console.log('La fecha de vencimiento está en el pasado, ajustando a un día después');
+        //     dueDateObj.setDate(createdDate.getDate() + 1);  // Ajustamos a 1 día después de la fecha actual
+        // }
 
         // Crear la tarea
         const newTask = new Task({
