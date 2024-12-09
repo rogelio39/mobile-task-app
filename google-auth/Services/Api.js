@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const URL1 = "https://mobile-task-app.onrender.com"
+const URL1 = "http://10.0.2.2:5000"
 
 
 
@@ -153,8 +153,7 @@ const completeTask = async (taskId) => {
 
         if (!res.ok) throw new Error('Error marking task as completed');
 
-        const updatedTask = await res.json();
-        return updatedTask;
+        await res.json();
     } catch (err) {
         console.log(err.message);
         return null

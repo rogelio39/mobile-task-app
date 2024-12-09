@@ -11,17 +11,12 @@ const Dashboard = () => {
     const [view, setView] = useState({});
     const { tasks, removeTask, completeTasks } = useTaskContext();
 
-    // Actualiza las tareas en el estado local cuando cambian en el contexto
     useEffect(() => {
-        if (JSON.stringify(tasks) !== JSON.stringify(tasksState)) {
-            setTasksState(tasks);
-        }
-        if (tasks) {
-            setLoading(false);
-        }
-    }, [tasks]); // Solo se ejecutará cuando `tasks` cambie
+        setTasksState(tasks);
+        setLoading(false);
+    }, [tasks]);
 
-    // Formatea una fecha para mostrarla en DD/MM/YYYY
+
     const formatDate = (dateString) => {
         if (!dateString) return 'No tiene fecha para cumplirse';
         const date = new Date(dateString);
@@ -31,7 +26,6 @@ const Dashboard = () => {
         return `${day}/${month}/${year}`;
     };
 
-    // Alterna la vista de detalles de la tarea
     const toggleViewInfo = (taskId) => {
         setView((prevView) => ({
             ...prevView,
@@ -39,23 +33,27 @@ const Dashboard = () => {
         }));
     };
 
-    // Marca una tarea como completada y actualiza el estado local
     const taskComplet = async (taskId) => {
         try {
-            await completeTasks(taskId);
-            setTasksState((prevTasks) =>
-                prevTasks.map((task) =>
-                    task._id === taskId ? { ...task, completed: true } : task
-                )
-            );
-            Toast.show({ type: 'success', text1: 'Tarea completada' });
+            const completedTask = await completeTasks(taskId);
+
+            if (completedTask === 'ok') {
+                setTasksState((prevTasks) =>
+                    prevTasks.map((task) =>
+                        task._id === taskId ? { ...task, completed: true } : task
+                    )
+                );
+                Toast.show({ type: 'success', text1: 'Tarea completada' });
+
+            }
+
+
         } catch (err) {
             setError(err.message);
             Toast.show({ type: 'error', text1: 'Error al completar la tarea' });
         }
     };
 
-    // Elimina una tarea del estado local y contexto
     const deleteTask = async (taskId) => {
         try {
             await removeTask(taskId);
@@ -69,7 +67,6 @@ const Dashboard = () => {
         }
     };
 
-    // Agrupa las tareas por fecha de vencimiento
     const groupByDate = (tasks) => {
         return tasks.reduce((acc, task) => {
             const formattedDate = formatDate(task.dueDate);
@@ -98,7 +95,7 @@ const Dashboard = () => {
                             key={task._id}
                             style={[
                                 styles.taskItem,
-                                task.completed && styles.completed, // Aplica estilo para tareas completadas
+                                task.completed && styles.completed,
                             ]}
                             onPress={() => toggleViewInfo(task._id)}
                             onLongPress={() =>
@@ -145,7 +142,7 @@ const styles = StyleSheet.create({
     group: { marginBottom: 20 },
     date: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
     taskItem: { padding: 15, backgroundColor: '#f5f5f5', marginBottom: 10, borderRadius: 5 },
-    completed: { backgroundColor: '#d3ffd3' }, // Estilo para tareas completadas
+    completed: { backgroundColor: '#d3ffd3' },
     taskTitle: { fontSize: 16, fontWeight: 'bold' },
     taskDetails: { marginTop: 10 },
     completeButton: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, marginTop: 10 },

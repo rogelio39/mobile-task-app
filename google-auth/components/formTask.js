@@ -6,7 +6,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 const FormTask = () => {
     const { addTask } = useTaskContext();
-    const [tasksState, setTasksState] = useState([]);
     const [error, setError] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [newTask, setNewTask] = useState({
@@ -29,8 +28,7 @@ const FormTask = () => {
         if (!validateForm()) return;
 
         try {
-            const createATask = await addTask(newTask);
-            setTasksState([...tasksState, createATask]);
+            await addTask(newTask);
             setNewTask({
                 title: '',
                 description: '',

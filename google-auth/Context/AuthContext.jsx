@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
     const handleSuccess = async (token) => {
 
         const loginSucess = await Login(token);
-        console.log("loginsucess context", loginSucess)
         if(loginSucess){
             return loginSucess
         }

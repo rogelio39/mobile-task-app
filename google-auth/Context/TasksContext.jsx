@@ -102,8 +102,8 @@ export const TasksProvider = ({ children }) => {
 
     const completeTasks = async (id) => {
         const data = await completeTask(id);
-        setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
-        return data
+        // setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
+        return 'ok'
     };
 
     const removeTask = async (id) => {
