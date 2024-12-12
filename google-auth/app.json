@@ -44,6 +44,9 @@
                 "projectId": "3869e27d-1df9-461e-8ea7-4c1366ffa84a"
             }
         },
+        "permissions": [
+            "NOTIFICATIONS"
+        ],
         "owner": "rogerras"
     }
 }

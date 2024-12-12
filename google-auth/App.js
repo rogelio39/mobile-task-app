@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import NavBar from './components/navBar'
 import Register from './components/Register';
-import CalendarTask from './components/CalendarTask'
+import CalendarTask from './components/calendarTask'
 import GoogleLogin from './components/googleLogin';
 import { TasksProvider } from './Context/TasksContext';
 import { AuthProvider } from './Context/AuthContext';

@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useTaskContext } from "../Context/TasksContext";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import {usePushNotifications} from '../hooks/notifications'
 
 const FormTask = () => {
+    const { expoPushToken } = usePushNotifications(); 
     const { addTask } = useTaskContext();
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [newTask, setNewTask] = useState({
         title: '',
@@ -21,14 +24,27 @@ const FormTask = () => {
             setError('Todos los campos son obligatorios.');
             return false;
         }
+        if (new Date(newTask.dueDate) < new Date()) {
+            setError('La fecha de vencimiento no puede ser en el pasado.');
+            return false;
+        }
+        if (newTask.description.length < 10) {
+            setError('La descripción debe tener al menos 10 caracteres.');
+            return false;
+        }
         return true;
     };
 
     const handleTaskSubmit = async () => {
         if (!validateForm()) return;
 
+        setLoading(true);
         try {
-            await addTask(newTask);
+            const taskData = { 
+                ...newTask, 
+                expoPushToken // Aquí pasas el expoPushToken
+            };
+            await addTask(taskData);
             setNewTask({
                 title: '',
                 description: '',
@@ -41,6 +57,8 @@ const FormTask = () => {
         } catch (error) {
             console.error('Error al agregar la tarea:', error);
             setError('Error al agregar la tarea');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -48,14 +66,14 @@ const FormTask = () => {
         <View style={styles.container}>
             <Text style={styles.title}>Añadir Nueva Tarea</Text>
             <TextInput
-                style={styles.input}
+                style={[styles.input, error && !newTask.title && styles.inputError]}
                 value={newTask.title}
                 onChangeText={(text) => setNewTask({ ...newTask, title: text })}
                 placeholder="Título"
                 placeholderTextColor="#888"
             />
             <TextInput
-                style={[styles.input, styles.textarea]}
+                style={[styles.input, styles.textarea, error && !newTask.description && styles.inputError]}
                 value={newTask.description}
                 onChangeText={(text) => setNewTask({ ...newTask, description: text })}
                 placeholder="Descripción"
@@ -109,7 +127,11 @@ const FormTask = () => {
                 multiline
                 numberOfLines={4}
             />
-            <Button title="Agregar Tarea" onPress={handleTaskSubmit} color="#007BFF" />
+            {loading ? (
+                <ActivityIndicator size="large" color="#007BFF" />
+            ) : (
+                <Button title="Agregar Tarea" onPress={handleTaskSubmit} color="#007BFF" />
+            )}
             {error && <Text style={styles.error}>{error}</Text>}
         </View>
     );
@@ -133,6 +155,9 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
         fontSize: 16
+    },
+    inputError: {
+        borderColor: 'red'
     },
     textarea: {
         height: 80,

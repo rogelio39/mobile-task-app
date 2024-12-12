@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String }, // Ahora no es obligatorio para usuarios de Google
-    googleId: { type: String, unique: true, sparse: true } // `sparse` permite índices únicos nulos
+    googleId: { type: String, unique: true, sparse: true }, // `sparse` permite índices únicos nulos
+    expoPushToken: { type: String, default: null }
 });
 
 // Método para comparar contraseñas

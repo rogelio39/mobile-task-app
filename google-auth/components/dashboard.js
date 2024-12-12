@@ -4,6 +4,7 @@ import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
+
 const Dashboard = () => {
     const [tasksState, setTasksState] = useState([]);
     const [loading, setLoading] = useState(true);

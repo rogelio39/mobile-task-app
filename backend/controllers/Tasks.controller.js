@@ -1,40 +1,57 @@
 import Task from '../models/Task.models.js';
+import { schedulePushNotification } from '../config/pushNotificationService.js';
 
 // Controlador para crear una nueva tarea
+
+
+// Función para ajustar la fecha a las 7 AM del mismo día
+const setNotificationTime = (sendDate) => {
+    const notificationDate = new Date(sendDate);
+    
+    // Configurar la fecha para que sea el mismo día a las 7 AM
+    notificationDate.setHours(7, 0, 0, 0); // 7 AM, 0 minutos, 0 segundos, 0 milisegundos
+    
+    return notificationDate;
+};
+
+// Función para crear una tarea
 export const createTask = async (req, res) => {
-    const { title, description, dueDate, priority, notes, createdBy, assignedTo } = req.body;
+    const { title, description, dueDate, priority, notes, createdBy, assignedTo, expoPushToken } = req.body;
 
     try {
         // Validar la fecha de vencimiento (dueDate)
         const dueDateObj = dueDate ? new Date(dueDate) : null;
-        const createdDate = new Date();
 
-        // Si dueDate es inválido
-        if (isNaN(dueDateObj.getTime())) {
+        if (!dueDate || isNaN(dueDateObj.getTime())) {
             return res.status(400).json({ message: 'Fecha de vencimiento inválida' });
         }
-
-        // Si dueDate es anterior a la fecha de creación, ajustamos la fecha de vencimiento
-        // if (dueDateObj <= createdDate) {
-        //     console.log('La fecha de vencimiento está en el pasado, ajustando a un día después');
-        //     dueDateObj.setDate(createdDate.getDate() + 1);  // Ajustamos a 1 día después de la fecha actual
-        // }
 
         // Crear la tarea
         const newTask = new Task({
             title,
             description,
-            dueDate: dueDateObj, // Usamos la fecha ajustada
-            priority: priority || 'Medium', 
+            dueDate: dueDateObj,
+            priority: priority || 'Medium',
             notes,
-            createdBy: req.user._id, 
+            createdBy: req.user._id,
             assignedTo: assignedTo || req.user._id,
-            completed: false
+            completed: false,
         });
 
-        console.log("Nueva tarea:", newTask);
-
         await newTask.save();
+
+        console.log('Nueva tarea creada:', newTask);
+
+        // Configurar la hora de la notificación para las 7 AM del día de la fecha de vencimiento
+        const notificationTime = setNotificationTime(dueDateObj);
+
+        // Programar notificación push si se proporciona el token
+        if (expoPushToken) {
+            const notificationTitle = 'Recordatorio de tarea';
+            const notificationBody = `Tu tarea "${title}" vence hoy. ¡No olvides completarla!`;
+
+            schedulePushNotification(expoPushToken, notificationTitle, notificationBody, notificationTime);
+        }
 
         res.status(201).json(newTask);
     } catch (error) {
@@ -42,6 +59,7 @@ export const createTask = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la tarea', error: error.message });
     }
 };
+
 
 
 export const updateTask = async (req, res) => {

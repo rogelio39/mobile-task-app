@@ -3,6 +3,7 @@ import { registerUser, loginUser } from '../controllers/Users.controller.js';
 import jwt from 'jsonwebtoken';
 import User from '../models/Users.models.js';
 import { OAuth2Client } from 'google-auth-library';
+import { saveExpoPushToken } from '../controllers/Users.controller.js'; // Agregar la importación
 
 const UserRouter = express.Router();
 const client = new OAuth2Client([
@@ -13,14 +14,11 @@ const client = new OAuth2Client([
 UserRouter.post('/register', registerUser);
 UserRouter.post('/login', loginUser);
 
-
-
-// Ruta para verificar y manejar el token de Google enviado desde el frontend
+// Ruta para manejar el token de Google
 UserRouter.post('/auth/google', async (req, res) => {
     const { token } = req.body;
 
     try {
-        // Verifica el token
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: [
@@ -33,7 +31,6 @@ UserRouter.post('/auth/google', async (req, res) => {
         const googleId = payload['sub'];
         const email = payload['email'];
 
-        // Busca o crea el usuario
         let user = await User.findOne({ googleId });
         if (!user) {
             user = await User.create({
@@ -51,5 +48,7 @@ UserRouter.post('/auth/google', async (req, res) => {
     }
 });
 
+// Ruta para guardar el Expo Push Token
+UserRouter.post('/save-expo-push-token', saveExpoPushToken);  // Nueva ruta para guardar el token
 
 export default UserRouter;

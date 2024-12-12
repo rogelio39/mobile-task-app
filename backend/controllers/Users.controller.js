@@ -5,6 +5,31 @@ const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
+export const saveExpoPushToken = async (req, res) => {
+    const { expoPushToken } = req.body;
+
+    if (!expoPushToken) {
+        return res.status(400).json({ message: 'Token no proporcionado.' });
+    }
+
+    try {
+        // Buscar al usuario usando su ID desde el JWT en la sesión
+        const user = await User.findById(req.user._id); // Suponiendo que req.user._id está presente
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Guardar el expoPushToken en el usuario
+        user.expoPushToken = expoPushToken;
+        await user.save();
+
+        res.status(200).json({ message: 'Token guardado con éxito.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al guardar el token.', error: error.message });
+    }
+};
 export const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
     

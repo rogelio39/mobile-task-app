@@ -70,9 +70,9 @@ export const TasksProvider = ({ children }) => {
         return task;
     };
 
-    const addTask = async (task) => {
+    const addTask = async (taskData) => {
 
-        const newTask = await createTask(task);
+        const newTask = await createTask(taskData);
         setTasks((prevTasks) => [...prevTasks, newTask]);
         return newTask
     };

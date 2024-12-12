@@ -58,7 +58,7 @@ const fetchTasksForDate = async (date) => {
 
 
 // Crear nueva tarea
-const createTask = async (task) => {
+const createTask = async (taskData) => {
 
     const token = await AsyncStorage.getItem('token');
     const res = await fetch(`${URL1}/api/tasks`, {
@@ -67,7 +67,7 @@ const createTask = async (task) => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(task),
+        body: JSON.stringify(taskData),
     });
 
     if (!res.ok) {
