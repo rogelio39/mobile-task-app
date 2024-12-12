@@ -2,7 +2,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const URL1 = "http://10.0.2.2:5000"
+// const URL1 = "http://10.0.2.2:5000"
+const URL1 = "https://mobile-task-app.onrender.com"
 
 
 
