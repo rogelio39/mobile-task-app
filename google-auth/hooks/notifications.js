@@ -2,8 +2,8 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { useEffect, useState } from 'react';
 
-// const URL1 = "http://10.0.2.2:5000"
-const URL1 = "https://mobile-task-app.onrender.com"
+const URL1 = "http://10.0.2.2:5000"
+// const URL1 = "https://mobile-task-app.onrender.com"
 
 export const usePushNotifications = () => {
     const [expoPushToken, setExpoPushToken] = useState(null);

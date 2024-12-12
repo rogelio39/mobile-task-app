@@ -4,19 +4,16 @@ import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
-
 const Dashboard = () => {
-    const [tasksState, setTasksState] = useState([]);
+    const { tasks, removeTask, completeTasks } = useTaskContext(); // Uso directo del contexto
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [view, setView] = useState({});
-    const { tasks, removeTask, completeTasks } = useTaskContext();
 
+    // Usamos directamente el contexto sin tener estado duplicado
     useEffect(() => {
-        setTasksState(tasks);
         setLoading(false);
     }, [tasks]);
-
 
     const formatDate = (dateString) => {
         if (!dateString) return 'No tiene fecha para cumplirse';
@@ -28,10 +25,11 @@ const Dashboard = () => {
     };
 
     const toggleViewInfo = (taskId) => {
-        setView((prevView) => ({
-            ...prevView,
-            [taskId]: !prevView[taskId],
-        }));
+        setView((prevView) => {
+            const isToggled = prevView[taskId];
+            if (isToggled !== undefined && !isToggled) return prevView; // No actualiza si no cambia
+            return { ...prevView, [taskId]: !isToggled };
+        });
     };
 
     const taskComplet = async (taskId) => {
@@ -39,16 +37,8 @@ const Dashboard = () => {
             const completedTask = await completeTasks(taskId);
 
             if (completedTask === 'ok') {
-                setTasksState((prevTasks) =>
-                    prevTasks.map((task) =>
-                        task._id === taskId ? { ...task, completed: true } : task
-                    )
-                );
                 Toast.show({ type: 'success', text1: 'Tarea completada' });
-
             }
-
-
         } catch (err) {
             setError(err.message);
             Toast.show({ type: 'error', text1: 'Error al completar la tarea' });
@@ -58,9 +48,6 @@ const Dashboard = () => {
     const deleteTask = async (taskId) => {
         try {
             await removeTask(taskId);
-            setTasksState((prevTasks) =>
-                prevTasks.filter((task) => task._id !== taskId)
-            );
             Toast.show({ type: 'success', text1: 'Tarea eliminada' });
         } catch (err) {
             setError(err.message);
@@ -70,7 +57,7 @@ const Dashboard = () => {
 
     const groupByDate = (tasks) => {
         return tasks.reduce((acc, task) => {
-            const formattedDate = formatDate(task.dueDate);
+            const formattedDate = formatDate(task.dueDate || 'Sin fecha'); // Manejo de tareas sin dueDate
             if (!acc[formattedDate]) {
                 acc[formattedDate] = [];
             }
@@ -79,7 +66,8 @@ const Dashboard = () => {
         }, {});
     };
 
-    const groupedTasks = groupByDate(tasksState);
+    const groupedTasks = groupByDate(tasks);
+    console.log("Tareas agrupadas:", groupedTasks);
 
     if (loading) return <Text>Cargando tareas...</Text>;
     if (error) return <Text>Error: {error}</Text>;
@@ -94,10 +82,7 @@ const Dashboard = () => {
                     {groupedTasks[date].map((task) => (
                         <TouchableOpacity
                             key={task._id}
-                            style={[
-                                styles.taskItem,
-                                task.completed && styles.completed,
-                            ]}
+                            style={[styles.taskItem, task.completed && styles.completed]}
                             onPress={() => toggleViewInfo(task._id)}
                             onLongPress={() =>
                                 Alert.alert(

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useTaskContext } from "../Context/TasksContext";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {usePushNotifications} from '../hooks/notifications'
+import { usePushNotifications } from '../hooks/notifications';
 
 const FormTask = () => {
-    const { expoPushToken } = usePushNotifications(); 
+    const { expoPushToken } = usePushNotifications();
     const { addTask } = useTaskContext();
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -20,29 +20,38 @@ const FormTask = () => {
     });
 
     const validateForm = () => {
-        if (!newTask.title || !newTask.description || !newTask.dueDate) {
-            setError('Todos los campos son obligatorios.');
+        if (!newTask.title || newTask.title.length < 3) {
+            setError('El título debe tener al menos 3 caracteres.');
+            return false;
+        }
+        if (!newTask.description || newTask.description.length < 10) {
+            setError('La descripción debe tener al menos 10 caracteres.');
+            return false;
+        }
+        if (!newTask.dueDate) {
+            setError('La fecha de vencimiento es obligatoria.');
             return false;
         }
         if (new Date(newTask.dueDate) < new Date()) {
             setError('La fecha de vencimiento no puede ser en el pasado.');
             return false;
         }
-        if (newTask.description.length < 10) {
-            setError('La descripción debe tener al menos 10 caracteres.');
-            return false;
-        }
         return true;
     };
 
     const handleTaskSubmit = async () => {
+        if (!expoPushToken) {
+            setError("El token de notificaciones no está disponible.");
+            return;
+        }
+
         if (!validateForm()) return;
 
         setLoading(true);
         try {
             const taskData = { 
                 ...newTask, 
-                expoPushToken // Aquí pasas el expoPushToken
+                expoPushToken 
             };
             await addTask(taskData);
             setNewTask({
@@ -68,14 +77,20 @@ const FormTask = () => {
             <TextInput
                 style={[styles.input, error && !newTask.title && styles.inputError]}
                 value={newTask.title}
-                onChangeText={(text) => setNewTask({ ...newTask, title: text })}
+                onChangeText={(text) => {
+                    setError(null);
+                    setNewTask({ ...newTask, title: text });
+                }}
                 placeholder="Título"
                 placeholderTextColor="#888"
             />
             <TextInput
                 style={[styles.input, styles.textarea, error && !newTask.description && styles.inputError]}
                 value={newTask.description}
-                onChangeText={(text) => setNewTask({ ...newTask, description: text })}
+                onChangeText={(text) => {
+                    setError(null);
+                    setNewTask({ ...newTask, description: text });
+                }}
                 placeholder="Descripción"
                 placeholderTextColor="#888"
                 multiline
@@ -93,12 +108,9 @@ const FormTask = () => {
                 <Picker.Item label="Baja" value="Low" />
             </Picker>
 
-            {/* Selector de fecha con DateTimePicker */}
-            <Button
-                title="Seleccionar Fecha de Vencimiento"
-                onPress={() => setShowDatePicker(true)}
-                color="#007BFF"
-            />
+            <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+                <Text style={styles.dateButtonText}>Seleccionar Fecha de Vencimiento</Text>
+            </TouchableOpacity>
             {showDatePicker && (
                 <DateTimePicker
                     value={newTask.dueDate ? new Date(newTask.dueDate) : new Date()}
@@ -106,7 +118,7 @@ const FormTask = () => {
                     display="default"
                     onChange={(event, selectedDate) => {
                         setShowDatePicker(false);
-                        if (selectedDate) {
+                        if (event.type !== 'dismissed' && selectedDate) {
                             setNewTask({ ...newTask, dueDate: selectedDate.toISOString() });
                         }
                     }}
@@ -170,6 +182,18 @@ const styles = StyleSheet.create({
     error: {
         color: 'red',
         marginTop: 10
+    },
+    dateButton: {
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: '#007BFF',
+        alignItems: 'center',
+        marginBottom: 15
+    },
+    dateButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16
     },
     selectedDate: {
         marginTop: 10,
