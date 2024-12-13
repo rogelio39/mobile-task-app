@@ -60,7 +60,7 @@ const fetchTasksForDate = async (date) => {
 
 // Crear nueva tarea
 const createTask = async (taskData) => {
-
+    console.log("taskdata", taskData)
     const token = await AsyncStorage.getItem('token');
     const res = await fetch(`${URL1}/api/tasks`, {
         method: "POST",
@@ -154,7 +154,8 @@ const completeTask = async (taskId) => {
 
         if (!res.ok) throw new Error('Error marking task as completed');
 
-        await res.json();
+        const updatedTask = await res.json();
+        return updatedTask;
     } catch (err) {
         console.log(err.message);
         return null

@@ -2,13 +2,13 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { useEffect, useState } from 'react';
 
-// const URL1 = "http://10.0.2.2:5000"
+// const URL1 = "http://10.0.2.2:5000"; // Cambia esta URL si pruebas en un dispositivo físico
 const URL1 = "https://mobile-task-app.onrender.com";
 
 export const usePushNotifications = () => {
     const [expoPushToken, setExpoPushToken] = useState(null);
     const [notification, setNotification] = useState(false);
-
+    const [error, setError] = useState(null); // Nuevo estado para manejar errores
 
     useEffect(() => {
         // Configurar cómo se manejarán las notificaciones en primer plano
@@ -21,50 +21,67 @@ export const usePushNotifications = () => {
         });
 
         const registerForPushNotificationsAsync = async () => {
-            if (!Device.isDevice) {
-                alert('Las notificaciones push no funcionan en emuladores.');
-                return;
-            }
+            try {
+                if (!Device.isDevice) {
+                    setError('Debes usar un dispositivo físico para probar las notificaciones push.');
+                    alert('Las notificaciones push no funcionan en emuladores.');
+                    return;
+                }
 
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
+                const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                console.log('Estado de permisos existentes:', existingStatus);
 
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
+                let finalStatus = existingStatus;
 
-            if (finalStatus !== 'granted') {
-                alert('No se obtuvo permiso para enviar notificaciones push.');
-                return;
-            }
+                if (existingStatus !== 'granted') {
+                    const { status } = await Notifications.requestPermissionsAsync();
+                    console.log('Estado de permisos después de la solicitud:', status);
+                    finalStatus = status;
+                }
 
-            const token = (await Notifications.getExpoPushTokenAsync()).data;
-            setExpoPushToken(token);
+                if (finalStatus !== 'granted') {
+                    setError('Permiso denegado para enviar notificaciones push.');
+                    alert('No se obtuvo permiso para enviar notificaciones push.');
+                    return;
+                }
 
-            // Enviar el token al backend después de obtenerlo
-            if (token) {
+                const token = (await Notifications.getExpoPushTokenAsync()).data;
+                console.log('Token generado:', token);
+
+                if (!token) {
+                    setError('No se pudo generar el token de notificaciones.');
+                    console.error('Token no obtenido. Verifica tu configuración.');
+                    return;
+                }
+
+                setExpoPushToken(token);
+
+                // Enviar el token al backend
                 try {
                     const response = await fetch(`${URL1}/api/users/save-expo-push-token`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            // Si tienes un token de autenticación, puedes agregarlo aquí
-                            'Authorization': `Bearer ${yourAuthToken}`,
                         },
-                        body: JSON.stringify({
-                            expoPushToken: token,
-                        }),
+                        body: JSON.stringify({ expoPushToken: token }),
                     });
+
                     const data = await response.json();
-                    if (data.success) {
-                        console.log('Token enviado con éxito al backend');
+                    console.log('Respuesta del backend:', data);
+
+                    if (!data.success) {
+                        console.error('Error al enviar el token al backend:', data.message || 'Sin mensaje');
+                        setError('Error al enviar el token al backend.');
                     } else {
-                        console.log('Error al enviar el token al backend');
+                        console.log('Token enviado con éxito al backend.');
                     }
                 } catch (error) {
-                    console.error('Error al enviar el token al backend', error);
+                    console.error('Error al enviar el token al backend:', error);
+                    setError('Error al comunicarse con el servidor.');
                 }
+            } catch (err) {
+                console.error('Error en el registro de notificaciones:', err);
+                setError('Ocurrió un error al configurar las notificaciones.');
             }
         };
 
@@ -73,6 +90,7 @@ export const usePushNotifications = () => {
 
         // Manejar notificaciones entrantes
         const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+            console.log('Notificación recibida:', notification);
             setNotification(notification);
         });
 
@@ -80,11 +98,12 @@ export const usePushNotifications = () => {
             console.log('Notificación seleccionada:', response);
         });
 
+        // Limpieza de listeners al desmontar el componente
         return () => {
             Notifications.removeNotificationSubscription(notificationListener);
             Notifications.removeNotificationSubscription(responseListener);
         };
     }, []);
 
-    return { expoPushToken, notification };
+    return { expoPushToken, notification, error }; // Devuelve también el error
 };

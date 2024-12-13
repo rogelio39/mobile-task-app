@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types"; // Importamos PropTypes
-import { fetchTasks, createTask, updateTask, updateTasksTatus, deleteTask, completeTask , scheduleEmailReminder } from "../Services/Api";
+import { fetchTasks, createTask, updateTask, updateTasksTatus, deleteTask, completeTask, scheduleEmailReminder } from "../Services/Api";
 
 
 const TasksContext = createContext();
@@ -14,19 +14,24 @@ export const TasksProvider = ({ children }) => {
 
     useEffect(() => {
         const loadTasks = async () => {
+            setLoading(true); // Asegúrate de establecer `loading` antes de cargar las tareas
             try {
                 const data = await fetchTasks();
-                const tasksWithRecurrence = handleRecurrence(data); // Manejamos la recurrencia
-                setTasks(tasksWithRecurrence);
+                if (data) {
+                    const tasksWithRecurrence = handleRecurrence(data);
+                    setTasks(tasksWithRecurrence);
+                }
             } catch (error) {
+                console.error('Error al cargar tareas:', error.message);
                 setError(error.message);
             } finally {
-                setLoading(false);
+                setLoading(false); // Establece `loading` en false incluso si ocurre un error
             }
         };
 
         loadTasks();
     }, []);
+
 
     const handleRecurrence = (tasks) => {
 
@@ -71,7 +76,7 @@ export const TasksProvider = ({ children }) => {
     };
 
     const addTask = async (taskData) => {
-
+        console.log("taskData", taskData)
         const newTask = await createTask(taskData);
         setTasks((prevTasks) => [...prevTasks, newTask]);
         return newTask
@@ -92,18 +97,35 @@ export const TasksProvider = ({ children }) => {
         return 'ok'
     };
 
-    
 
-    
 
-    const sendEmail = async(email, task) => {
+
+
+    const sendEmail = async (email, task) => {
         await scheduleEmailReminder(email, task)
     }
 
     const completeTasks = async (id) => {
-        const data = await completeTask(id);
-        // setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
-        return 'ok'
+        try {
+            // Llamar a la API y obtener la tarea actualizada
+            const updatedTask = await completeTask(id);
+
+            if (updatedTask) {
+                // Usar la tarea actualizada directamente
+                setTasks((prevTasks) =>
+                    prevTasks.map((task) =>
+                        task._id === id ? updatedTask : task
+                    )
+                );
+
+                return 'ok';
+
+            }
+
+        } catch (error) {
+            console.error('Error al completar la tarea:', error);
+            throw error;
+        }
     };
 
     const removeTask = async (id) => {

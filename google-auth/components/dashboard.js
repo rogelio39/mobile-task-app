@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
 const Dashboard = () => {
-    const { tasks, removeTask, completeTasks } = useTaskContext(); // Uso directo del contexto
+    const { tasks, removeTask, completeTasks } = useTaskContext();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [view, setView] = useState({});
+    const [isFormVisible, setIsFormVisible] = useState(false); // Estado para alternar el formulario
 
     // Usamos directamente el contexto sin tener estado duplicado
     useEffect(() => {
         setLoading(false);
+        console.log("task en el useeffect de dashboard", tasks)
     }, [tasks]);
 
     const formatDate = (dateString) => {
@@ -25,11 +27,10 @@ const Dashboard = () => {
     };
 
     const toggleViewInfo = (taskId) => {
-        setView((prevView) => {
-            const isToggled = prevView[taskId];
-            if (isToggled !== undefined && !isToggled) return prevView; // No actualiza si no cambia
-            return { ...prevView, [taskId]: !isToggled };
-        });
+        setView((prevView) => ({
+            ...prevView,
+            [taskId]: !prevView[taskId],
+        }));
     };
 
     const taskComplet = async (taskId) => {
@@ -57,7 +58,7 @@ const Dashboard = () => {
 
     const groupByDate = (tasks) => {
         return tasks.reduce((acc, task) => {
-            const formattedDate = formatDate(task.dueDate || 'Sin fecha'); // Manejo de tareas sin dueDate
+            const formattedDate = formatDate(task.dueDate || 'Sin fecha');
             if (!acc[formattedDate]) {
                 acc[formattedDate] = [];
             }
@@ -67,15 +68,36 @@ const Dashboard = () => {
     };
 
     const groupedTasks = groupByDate(tasks);
-    console.log("Tareas agrupadas:", groupedTasks);
 
-    if (loading) return <Text>Cargando tareas...</Text>;
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text>Cargando tareas...</Text>
+            </View>
+        );
+    }
+
     if (error) return <Text>Error: {error}</Text>;
 
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Dashboard de Tareas</Text>
-            <FormTask />
+
+            {/* Botón para alternar la visibilidad del formulario */}
+            <TouchableOpacity
+                style={styles.toggleFormButton}
+                onPress={() => setIsFormVisible(!isFormVisible)}
+            >
+                <Text style={styles.toggleFormText}>
+                    {isFormVisible ? 'Cerrar Formulario' : 'Agregar Nueva Tarea'}
+                </Text>
+            </TouchableOpacity>
+
+            {/* Renderizado del formulario */}
+            {isFormVisible && <FormTask />}
+
+            {/* Listado de tareas agrupadas por fecha */}
             {Object.keys(groupedTasks).map((date) => (
                 <View key={date} style={styles.group}>
                     <Text style={styles.date}>{date}</Text>
@@ -117,6 +139,7 @@ const Dashboard = () => {
                     ))}
                 </View>
             ))}
+
             <Toast />
         </ScrollView>
     );
@@ -133,6 +156,8 @@ const styles = StyleSheet.create({
     taskDetails: { marginTop: 10 },
     completeButton: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, marginTop: 10 },
     buttonText: { color: '#fff', textAlign: 'center' },
+    toggleFormButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 5, marginBottom: 20 },
+    toggleFormText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
 });
 
 export default Dashboard;

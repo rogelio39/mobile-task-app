@@ -19,6 +19,7 @@ const FormTask = () => {
         dueDate: ''
     });
 
+    console.log("expopushtoken", expoPushToken)
     const validateForm = () => {
         if (!newTask.title || newTask.title.length < 3) {
             setError('El título debe tener al menos 3 caracteres.');
@@ -40,10 +41,10 @@ const FormTask = () => {
     };
 
     const handleTaskSubmit = async () => {
-        if (!expoPushToken) {
-            setError("El token de notificaciones no está disponible.");
-            return;
-        }
+        // if (!expoPushToken) {
+        //     setError("El token de notificaciones no está disponible.");
+        //     return;
+        // }
 
         if (!validateForm()) return;
 
@@ -51,7 +52,7 @@ const FormTask = () => {
         try {
             const taskData = { 
                 ...newTask, 
-                expoPushToken 
+                expoPushToken
             };
             await addTask(taskData);
             setNewTask({

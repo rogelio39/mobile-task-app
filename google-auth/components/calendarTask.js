@@ -16,6 +16,7 @@ const CalendarTask = () => {
         const loadTasks = async () => {
             try {
                 const data = await fetchTasksForDate(selectedDate);
+
                 if (Array.isArray(data)) {
                     setTasksForDate(data);
                 } else {
