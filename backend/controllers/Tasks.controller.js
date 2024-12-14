@@ -1,5 +1,5 @@
 import Task from '../models/Task.models.js';
-import { schedulePushNotification } from '../config/pushNotificationService.js';
+// import { schedulePushNotification } from '../config/pushNotificationService.js';
 
 // Controlador para crear una nueva tarea
 
@@ -17,7 +17,7 @@ const setNotificationTime = (sendDate) => {
 // Función para crear una tarea
 export const createTask = async (req, res) => {
     const { title, description, dueDate, priority, notes, createdBy, assignedTo, expoPushToken } = req.body;
-
+    console.log("expopush", expoPushToken)
     try {
         // Validar la fecha de vencimiento (dueDate)
         const dueDateObj = dueDate ? new Date(dueDate) : null;

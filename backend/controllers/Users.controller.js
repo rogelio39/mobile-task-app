@@ -14,6 +14,8 @@ export const saveExpoPushToken = async (req, res) => {
 
     try {
         // Buscar al usuario usando su ID desde el JWT en la sesión
+        console.log("expopushtoken backend", expoPushToken)
+        console.log("req id", req.user._id)
         const user = await User.findById(req.user._id); // Suponiendo que req.user._id está presente
 
         if (!user) {

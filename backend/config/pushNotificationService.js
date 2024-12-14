@@ -1,41 +1,59 @@
-import schedule from 'node-schedule';
-import fetch from 'node-fetch';
+// notifications.js
+import { readFile } from 'fs/promises';
+import { JWT } from 'google-auth-library';
+import dotenv from 'dotenv';
 
-// Función para enviar notificación push
-const sendPushNotification = async (expoPushToken, title, body) => {
+dotenv.config();
+
+
+// Obtén un accessToken desde Firebase usando el service-account.json
+export async function getAccessToken() {
+    const serviceAccount = JSON.parse(
+        await readFile(new URL('../app-task-calendar-firebase-adminsdk-xbkqf-d8c3a12ea6.json', import.meta.url))
+    );
+
+    const jwtClient = new JWT(
+        serviceAccount.client_email,
+        null,
+        serviceAccount.private_key,
+        ['https://www.googleapis.com/auth/cloud-platform']
+    );
+
+    const tokens = await jwtClient.authorize();
+    return tokens.access_token;
+}
+
+// Envía una notificación push a un dispositivo usando FCM
+export async function sendNotification(deviceToken, title, body) {
+    const accessToken = await getAccessToken();
+    const projectId = process.env.FCM_PROJECT_ID;
+
     const message = {
-        to: expoPushToken,
-        sound: 'default',
-        title,
-        body,
-        data: { additionalData: 'Puedes agregar más información aquí' },
+        message: {
+            token: deviceToken,
+            notification: {
+                title: title,
+                body: body,
+            },
+            data: {
+                extraInfo: 'Información adicional',
+            },
+        },
     };
 
-    try {
-        await fetch('https://exp.host/--/api/v2/push/send', {
+    const response = await fetch(
+        `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
+        {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(message),
-        });
-        console.log('Notificación enviada:', message);
-    } catch (error) {
-        console.error('Error al enviar notificación:', error);
-    }
-};
+        }
+    );
 
-// Función para programar la notificación push
-export const schedulePushNotification = (expoPushToken, title, body, sendDate) => {
-    if (sendDate <= new Date()) {
-        console.error('La fecha de notificación ya ha pasado. No se programará.');
-        return;
-    }
-
-    schedule.scheduleJob(sendDate, () => {
-        sendPushNotification(expoPushToken, title, body);
-    });
-
-    console.log(`Notificación programada para: ${sendDate}`);
-};
+    const result = await response.json();
+    console.log('Notification Response:', result);
+    return result;
+}
