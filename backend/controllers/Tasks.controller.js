@@ -1,5 +1,5 @@
 import Task from '../models/Task.models.js';
-// import { schedulePushNotification } from '../config/pushNotificationService.js';
+import { sendNotification } from '../config/pushNotificationService.js';
 
 // Controlador para crear una nueva tarea
 
@@ -16,8 +16,8 @@ const setNotificationTime = (sendDate) => {
 
 // Función para crear una tarea
 export const createTask = async (req, res) => {
-    const { title, description, dueDate, priority, notes, createdBy, assignedTo, expoPushToken } = req.body;
-    console.log("expopush", expoPushToken)
+    const { title, description, dueDate, priority, notes, createdBy, assignedTo, deviceToken } = req.body;
+    console.log("expopush", deviceToken)
     try {
         // Validar la fecha de vencimiento (dueDate)
         const dueDateObj = dueDate ? new Date(dueDate) : null;
@@ -46,11 +46,11 @@ export const createTask = async (req, res) => {
         const notificationTime = setNotificationTime(dueDateObj);
 
         // Programar notificación push si se proporciona el token
-        if (expoPushToken) {
+        if (deviceToken) {
             const notificationTitle = 'Recordatorio de tarea';
             const notificationBody = `Tu tarea "${title}" vence hoy. ¡No olvides completarla!`;
 
-            schedulePushNotification(expoPushToken, notificationTitle, notificationBody, notificationTime);
+            schedulePushNotification(deviceToken, notificationTitle, notificationBody, notificationTime);
         }
 
         res.status(201).json(newTask);
