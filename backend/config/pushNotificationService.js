@@ -1,5 +1,4 @@
 // notifications.js
-import { readFile } from 'fs/promises';
 import { JWT } from 'google-auth-library';
 import dotenv from 'dotenv';
 
@@ -8,9 +7,8 @@ dotenv.config();
 
 // Obtén un accessToken desde Firebase usando el service-account.json
 export async function getAccessToken() {
-    const serviceAccount = JSON.parse(
-        await readFile(new URL('../app-task-calendar-firebase-adminsdk-xbkqf-d8c3a12ea6.json', import.meta.url))
-    );
+    const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+
 
     const jwtClient = new JWT(
         serviceAccount.client_email,
