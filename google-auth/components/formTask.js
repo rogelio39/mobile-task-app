@@ -3,13 +3,20 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, To
 import { useTaskContext } from "../Context/TasksContext";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { usePushNotifications } from '../hooks/notifications';
+import {registerForPushNotificationsAsync} from '../hooks/notificationsTest'
+
+
+// const URL1 = "http://10.0.2.2:5000"
+const URL1 = "https://mobile-task-app.onrender.com";
+
 
 const FormTask = () => {
     const { expoPushToken } = usePushNotifications();
     const { addTask } = useTaskContext();
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [deviceToken, setDeviceToken] = useState('');
+
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [newTask, setNewTask] = useState({
         title: '',
@@ -18,8 +25,33 @@ const FormTask = () => {
         notes: '',
         dueDate: ''
     });
+    
+    useEffect(() => {
+        async function getToken() {
+            const token = await registerForPushNotificationsAsync();
+            if (token) {
+                console.log('Device Token:', token);
+                setDeviceToken(token);
 
-    console.log("expopushtoken", expoPushToken)
+                // Envía el token al backend
+                await fetch(`${URL1}/send-notification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        deviceToken: token,
+                        title: '¡Hola!',
+                        body: 'Esto es una notificación de prueba',
+                    }),
+                });
+            }
+        }
+
+        getToken();
+    }, []);
+
+
     const validateForm = () => {
         if (!newTask.title || newTask.title.length < 3) {
             setError('El título debe tener al menos 3 caracteres.');
@@ -41,10 +73,6 @@ const FormTask = () => {
     };
 
     const handleTaskSubmit = async () => {
-        // if (!expoPushToken) {
-        //     setError("El token de notificaciones no está disponible.");
-        //     return;
-        // }
 
         if (!validateForm()) return;
 
@@ -52,7 +80,7 @@ const FormTask = () => {
         try {
             const taskData = { 
                 ...newTask, 
-                expoPushToken
+                deviceToken
             };
             await addTask(taskData);
             setNewTask({
