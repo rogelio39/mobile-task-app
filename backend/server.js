@@ -61,6 +61,7 @@ app.use('/api/email', EmailRouter);
 
 app.post('/send-notification', async (req, res) => {
     const { deviceToken, title, body } = req.body;
+    console.log("devicetoke, title, body", deviceToken, title, body);
 
     if (!deviceToken || !title || !body) {
         return res.status(400).json({ error: 'Faltan campos necesarios' });

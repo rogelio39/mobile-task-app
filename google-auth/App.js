@@ -9,6 +9,7 @@ import GoogleLogin from './components/googleLogin';
 import { TasksProvider } from './Context/TasksContext';
 import { AuthProvider } from './Context/AuthContext';
 import Dashboard from './components/dashboard';
+import {loading} from './Context/TasksContext';
 
 const Stack = createNativeStackNavigator();
 

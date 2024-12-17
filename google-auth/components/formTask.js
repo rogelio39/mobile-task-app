@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useTaskContext } from "../Context/TasksContext";
 import { Picker } from '@react-native-picker/picker';
@@ -6,12 +6,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {registerForPushNotificationsAsync} from '../hooks/notificationsTest'
 
 
-// const URL1 = "http://10.0.2.2:5000"
-const URL1 = "https://mobile-task-app.onrender.com";
+const URL1 = "http://10.0.2.2:5000"
+// const URL1 = "https://mobile-task-app.onrender.com";
 
 
 const FormTask = () => {
-    const { expoPushToken } = usePushNotifications();
     const { addTask } = useTaskContext();
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -34,17 +33,20 @@ const FormTask = () => {
                 setDeviceToken(token);
 
                 // Envía el token al backend
-                await fetch(`${URL1}/send-notification`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        deviceToken: token,
-                        title: '¡Hola!',
-                        body: 'Esto es una notificación de prueba',
-                    }),
-                });
+                if(deviceToken){
+                    await fetch(`${URL1}/send-notification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            deviceToken: token,
+                            title: '¡Hola!',
+                            body: 'Esto es una notificación de prueba',
+                        }),
+                    });
+
+                }
             }
         }
 

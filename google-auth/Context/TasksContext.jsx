@@ -22,7 +22,7 @@ export const TasksProvider = ({ children }) => {
                     setTasks(tasksWithRecurrence);
                 }
             } catch (error) {
-                console.error('Error al cargar tareas:', error.message);
+                console.error('Error al cargar tareas en context:', error.message);
                 setError(error.message);
             } finally {
                 setLoading(false); // Establece `loading` en false incluso si ocurre un error
@@ -50,8 +50,22 @@ export const TasksProvider = ({ children }) => {
                 newTasks.push(task); // Si no hay recurrencia, dejamos la tarea igual
             }
         });
-
         return newTasks;
+    };
+
+    const loadAllTasks = async () => {
+        try {
+            const data = await fetchTasks();
+            if (data) {
+                const tasksWithRecurrence = handleRecurrence(data);
+                setTasks(tasksWithRecurrence);
+            }
+        } catch (error) {
+            console.error('Error al cargar tareas:', error.message);
+            setError(error.message);
+        } finally {
+            setLoading(false); // Establece `loading` en false incluso si ocurre un error
+        }
     };
 
     const createRecurringTask = (task, interval, unit) => {
@@ -144,6 +158,7 @@ export const TasksProvider = ({ children }) => {
                 removeTask,
                 sendEmail,
                 completeTasks,
+                loadAllTasks,
                 loading,
                 error,
             }}

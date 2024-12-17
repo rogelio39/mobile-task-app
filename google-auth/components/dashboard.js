@@ -1,26 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
+    ScrollView,
+    ActivityIndicator,
+} from 'react-native';
 import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
 
+
 const Dashboard = () => {
-    const { tasks, removeTask, completeTasks, fetchTasks } = useTaskContext(); // Asegúrate de tener `fetchTasks` en el contexto
+    const { tasks, removeTask, completeTasks, loadAllTasks } = useTaskContext(); // Agregar funcionalidades completas del contexto
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [view, setView] = useState({});
-    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [view, setView] = useState({}); // Controlar visibilidad de detalles de tareas
+    const [isFormVisible, setIsFormVisible] = useState(false); // Toggle del formulario
 
+    let count = 0
     useEffect(() => {
-        setLoading(false);
-    }, [tasks]);
+        const fetchAllTask = async () => {
+            await loadAllTasks()
+            if (tasks.length != 0) {
+                setLoading(false)
+            }
+        }
+        fetchAllTask();
+        // console.log("tasks en el useEffect de Dashboard", tasks);
+    }, []);
 
     const refreshTasks = async () => {
         try {
             setLoading(true);
-            await fetchTasks(); // Llama a la función fetchTasks del contexto
+            await loadAllTasks(); // Refrescar tareas desde la API
             setLoading(false);
             Toast.show({ type: 'success', text1: 'Tareas actualizadas' });
+
         } catch (err) {
             setError('Error al actualizar las tareas');
             setLoading(false);
@@ -34,6 +52,35 @@ const Dashboard = () => {
         return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
             .toString()
             .padStart(2, '0')}/${date.getFullYear()}`;
+    };
+
+    const toggleViewInfo = (taskId) => {
+        setView((prevView) => ({
+            ...prevView,
+            [taskId]: !prevView[taskId],
+        }));
+    };
+
+    const taskComplet = async (taskId) => {
+        try {
+            const completedTask = await completeTasks(taskId);
+            if (completedTask === 'ok') {
+                Toast.show({ type: 'success', text1: 'Tarea completada' });
+            }
+        } catch (err) {
+            setError(err.message);
+            Toast.show({ type: 'error', text1: 'Error al completar la tarea' });
+        }
+    };
+
+    const deleteTask = async (taskId) => {
+        try {
+            await removeTask(taskId);
+            Toast.show({ type: 'success', text1: 'Tarea eliminada' });
+        } catch (err) {
+            setError(err.message);
+            Toast.show({ type: 'error', text1: 'Error al eliminar la tarea' });
+        }
     };
 
     const groupedTasks = tasks.reduce((acc, task) => {
@@ -58,13 +105,25 @@ const Dashboard = () => {
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Dashboard de Tareas</Text>
 
-            <TouchableOpacity
-                style={styles.refreshButton}
-                onPress={refreshTasks}
-            >
+            {/* Botón para actualizar las tareas */}
+            <TouchableOpacity style={styles.refreshButton} onPress={refreshTasks}>
                 <Text style={styles.refreshText}>Actualizar Tareas</Text>
             </TouchableOpacity>
 
+            {/* Botón para alternar el formulario */}
+            <TouchableOpacity
+                style={styles.toggleFormButton}
+                onPress={() => setIsFormVisible(!isFormVisible)}
+            >
+                <Text style={styles.toggleFormText}>
+                    {isFormVisible ? 'Cerrar Formulario' : 'Agregar Nueva Tarea'}
+                </Text>
+            </TouchableOpacity>
+
+            {/* Render del formulario */}
+            {isFormVisible && <FormTask />}
+
+            {/* Listado de tareas agrupadas por fecha */}
             {Object.keys(groupedTasks).map((date) => (
                 <View key={date} style={styles.group}>
                     <Text style={styles.date}>{date}</Text>
@@ -72,14 +131,32 @@ const Dashboard = () => {
                         <TouchableOpacity
                             key={task._id}
                             style={[styles.taskItem, task.completed && styles.completed]}
+                            onPress={() => toggleViewInfo(task._id)}
                             onLongPress={() =>
                                 Alert.alert('Eliminar Tarea', '¿Estás seguro de eliminar esta tarea?', [
                                     { text: 'Cancelar', style: 'cancel' },
-                                    { text: 'Eliminar', onPress: () => removeTask(task._id) },
+                                    { text: 'Eliminar', onPress: () => deleteTask(task._id) },
                                 ])
                             }
                         >
                             <Text style={styles.taskTitle}>{task.title}</Text>
+                            {view[task._id] && (
+                                <View style={styles.taskDetails}>
+                                    <Text>Descripción: {task.description}</Text>
+                                    <Text>Fecha: {formatDate(task.dueDate)}</Text>
+                                    <Text>Prioridad: {task.priority}</Text>
+                                    <Text>Notas: {task.notes}</Text>
+                                    <Text>Estado: {task.completed ? 'Completada' : 'Pendiente'}</Text>
+                                    {!task.completed && (
+                                        <TouchableOpacity
+                                            onPress={() => taskComplet(task._id)}
+                                            style={styles.completeButton}
+                                        >
+                                            <Text style={styles.buttonText}>Completar</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            )}
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -98,11 +175,18 @@ const styles = StyleSheet.create({
     taskItem: { padding: 15, backgroundColor: '#f5f5f5', marginBottom: 10, borderRadius: 5 },
     completed: { backgroundColor: '#d3ffd3' },
     taskTitle: { fontSize: 16, fontWeight: 'bold' },
+    taskDetails: { marginTop: 10 },
+    completeButton: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, marginTop: 10 },
+    buttonText: { color: '#fff', textAlign: 'center' },
     refreshButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 5, marginBottom: 20 },
     refreshText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
+    toggleFormButton: { backgroundColor: '#2196F3', padding: 10, borderRadius: 5, marginBottom: 20 },
+    toggleFormText: { color: '#fff', textAlign: 'center', fontWeight: 'bold' },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
 
 export default Dashboard;
+
 
 
 // import React, { useState, useEffect } from 'react';

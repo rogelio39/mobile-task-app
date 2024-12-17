@@ -18,6 +18,7 @@ const setNotificationTime = (sendDate) => {
 export const createTask = async (req, res) => {
     const { title, description, dueDate, priority, notes, createdBy, assignedTo, deviceToken } = req.body;
     console.log("expopush", deviceToken)
+    console.log("body", req.body)
     try {
         // Validar la fecha de vencimiento (dueDate)
         const dueDateObj = dueDate ? new Date(dueDate) : null;
