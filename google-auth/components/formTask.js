@@ -6,8 +6,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {registerForPushNotificationsAsync} from '../hooks/notificationsTest'
 
 
-const URL1 = "http://10.0.2.2:5000"
-// const URL1 = "https://mobile-task-app.onrender.com";
+// const URL1 = "http://10.0.2.2:5000"
+const URL1 = "https://mobile-task-app.onrender.com";
 
 
 const FormTask = () => {

@@ -20,7 +20,6 @@ const Dashboard = () => {
     const [view, setView] = useState({}); // Controlar visibilidad de detalles de tareas
     const [isFormVisible, setIsFormVisible] = useState(false); // Toggle del formulario
 
-    let count = 0
     useEffect(() => {
         const fetchAllTask = async () => {
             await loadAllTasks()
@@ -83,12 +82,14 @@ const Dashboard = () => {
         }
     };
 
-    const groupedTasks = tasks.reduce((acc, task) => {
+
+    const groupedTasks = Array.isArray(tasks) ? tasks.reduce((acc, task) => {
         const date = formatDate(task.dueDate || 'Sin fecha');
         if (!acc[date]) acc[date] = [];
         acc[date].push(task);
         return acc;
-    }, {});
+    }, {}) : {};
+    
 
     if (loading) {
         return (

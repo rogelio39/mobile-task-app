@@ -51,7 +51,7 @@ export const createTask = async (req, res) => {
             const notificationTitle = 'Recordatorio de tarea';
             const notificationBody = `Tu tarea "${title}" vence hoy. ¡No olvides completarla!`;
 
-            schedulePushNotification(deviceToken, notificationTitle, notificationBody, notificationTime);
+            sendNotification(deviceToken, notificationTitle, notificationBody);
         }
 
         res.status(201).json(newTask);
