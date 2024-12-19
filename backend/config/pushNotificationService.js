@@ -19,14 +19,14 @@ export async function getAccessToken() {
     
 
         // Reemplazar las secuencias \\n por saltos de línea reales
-        const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
+        // const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
 
 
         // Configuración del JWT
         const jwtClient = new JWT(
             serviceAccount.client_email,
             null,
-            privateKey,
+            serviceAccount,
             ['https://www.googleapis.com/auth/firebase.messaging'] // Scope necesario para FCM
         );
 
