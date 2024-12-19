@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+console.log('Service Account Loaded:', serviceAccount);
+
 
 // Reemplazar \\n en la clave privada por saltos de línea reales
 serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
