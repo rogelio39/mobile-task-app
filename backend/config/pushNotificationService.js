@@ -1,35 +1,24 @@
-// notifications.js
-import { JWT } from 'google-auth-library';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import admin from 'firebase-admin';
 
 const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
 
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
 
-/**
- * Obtiene un access token desde Firebase usando las credenciales de service-account.json
- */
-export async function getAccessToken() {
+export async function sendNotification(deviceToken, title, body) {
     try {
-        // Configuración del JWT
-        const jwtClient = new JWT(
-            serviceAccount.client_email,
-            null,
-            privateKey,
-            ['https://www.googleapis.com/auth/firebase.messaging'] // Scope necesario para FCM
-        );
-
-        // Autorizar y obtener el token
-        const tokens = await jwtClient.authorize();
-        console.log('Access token generado:', tokens.access_token);
-        return tokens.access_token;
+        const response = await admin.messaging().send({
+            token: deviceToken,
+            notification: { title, body },
+        });
+        console.log('Notificación enviada:', response);
     } catch (error) {
-        console.error('Error obteniendo el access token:', error.message);
-        throw new Error('No se pudo obtener el access token. Verifica las credenciales.');
+        console.error('Error enviando notificación:', error);
+        throw new Error('No se pudo enviar la notificación.');
     }
 }
+
 
 /**
  * Envía una notificación push a un dispositivo usando FCM
