@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+
+console.log('GOOGLE_SERVICE_ACCOUNT_KEY:', process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+
 /**
  * Obtiene un access token desde Firebase usando las credenciales de service-account.json
  */
