@@ -1,15 +1,42 @@
 import admin from 'firebase-admin';
-import dotenv from 'dotenv';
+import ServiceAccount from '../models/serviceAccount.models.js';  // Importas el modelo previamente definido
+import 'dotenv/config';
 
-dotenv.config(); // Asegúrate de cargar las variables de entorno
+const getServiceAccount = async () => {
+    try {
+        // Obtener el documento que contiene las credenciales de Firebase
+        const serviceAccountDoc = await ServiceAccount.findOne();
+        if (!serviceAccountDoc) {
+            throw new Error('Service Account not found in MongoDB');
+        }
 
-const serviceAccountJson = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_KEY, 'base64').toString('utf-8');
-const serviceAccount = JSON.parse(serviceAccountJson);
+        // Usar las credenciales para Firebase Admin
+        const serviceAccount = serviceAccountDoc.credentials;
+        return serviceAccount;
+    } catch (error) {
+        console.error('Error getting Service Account from MongoDB:', error.message);
+        throw error;
+    }
+};
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-});
+// Función para inicializar Firebase Admin
+const initializeFirebaseAdmin = async () => {
+    try {
+        const serviceAccount = await getServiceAccount();
+        if (serviceAccount) {
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+            });
+            console.log('Firebase Admin SDK initialized successfully!');
+        }
+    } catch (error) {
+        console.error('Error initializing Firebase Admin SDK:', error.message);
+    }
+};
 
+initializeFirebaseAdmin();  // Llamada a la función de inicialización
+
+// Función para enviar notificaciones
 export async function sendNotification(deviceToken, title, body) {
     try {
         const response = await admin.messaging().send({
