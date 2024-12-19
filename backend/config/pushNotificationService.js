@@ -4,9 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
 
-console.log('Service Account:', serviceAccount);  // Añade esto para depurar
 /**
  * Obtiene un access token desde Firebase usando las credenciales de service-account.json
  */
@@ -14,9 +12,11 @@ export async function getAccessToken() {
     try {
         // Asegúrate de que la clave privada tenga el formato correcto
         const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+        console.log('Private Key before replace:', serviceAccount.private_key);
 
         // Reemplazar las secuencias \\n por saltos de línea reales
         const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
+        console.log('Private Key:', privateKey);
 
         // Configuración del JWT
         const jwtClient = new JWT(
