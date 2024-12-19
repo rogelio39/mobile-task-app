@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-
 console.log('GOOGLE_SERVICE_ACCOUNT_KEY:', process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
 
 /**
@@ -12,15 +11,21 @@ console.log('GOOGLE_SERVICE_ACCOUNT_KEY:', process.env.GOOGLE_SERVICE_ACCOUNT_KE
  */
 export async function getAccessToken() {
     try {
+        // Asegúrate de que la clave privada tenga el formato correcto
         const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
 
+        // Reemplazar las secuencias \\n por saltos de línea reales
+        const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
+
+        // Configuración del JWT
         const jwtClient = new JWT(
             serviceAccount.client_email,
             null,
-            serviceAccount.private_key.replace(/\\n/g, '\n'), // Asegura el formato correcto de la clave privada
+            privateKey,
             ['https://www.googleapis.com/auth/firebase.messaging'] // Scope necesario para FCM
         );
 
+        // Autorizar y obtener el token
         const tokens = await jwtClient.authorize();
         console.log('Access token generado:', tokens.access_token);
         return tokens.access_token;
@@ -40,8 +45,9 @@ export async function getAccessToken() {
 export async function sendNotification(deviceToken, title, body) {
     try {
         const accessToken = await getAccessToken();
-        const projectId = process.env.FCM_PROJECT_ID;
+        const projectId = process.env.FCM_PROJECT_ID; // Asegúrate de que este valor esté definido en tu archivo .env
 
+        // Crear el mensaje a enviar
         const message = {
             message: {
                 token: deviceToken,
@@ -55,6 +61,7 @@ export async function sendNotification(deviceToken, title, body) {
             },
         };
 
+        // Realizar la solicitud para enviar la notificación
         const response = await fetch(
             `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
             {
@@ -67,6 +74,7 @@ export async function sendNotification(deviceToken, title, body) {
             }
         );
 
+        // Comprobar si la respuesta es correcta
         if (!response.ok) {
             const errorResponse = await response.json();
             console.error('Error enviando notificación:', errorResponse);
