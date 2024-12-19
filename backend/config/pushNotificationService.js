@@ -7,7 +7,7 @@ dotenv.config();
 const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY.replace(/\\n/g, '\n'));
 
 
-console.log('Private Key before replace:', serviceAccount.private_key);
+console.log('Private key first', serviceAccount.private_key);
 
 /**
  * Obtiene un access token desde Firebase usando las credenciales de service-account.json
