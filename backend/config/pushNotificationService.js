@@ -5,13 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-console.log('Service Account Loaded:', serviceAccount);
+const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
 
-
-// Reemplazar \\n en la clave privada por saltos de línea reales
-serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-
-console.log('Private key first', serviceAccount.private_key);
 
 /**
  * Obtiene un access token desde Firebase usando las credenciales de service-account.json
@@ -22,7 +17,7 @@ export async function getAccessToken() {
         const jwtClient = new JWT(
             serviceAccount.client_email,
             null,
-            serviceAccount.private_key,
+            privateKey,
             ['https://www.googleapis.com/auth/firebase.messaging'] // Scope necesario para FCM
         );
 
