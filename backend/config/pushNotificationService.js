@@ -6,6 +6,8 @@ dotenv.config();
 
 const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
 
+// Reemplazar \\n en la clave privada por saltos de línea reales
+serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 
 console.log('Private key first', serviceAccount.private_key);
 
@@ -14,19 +16,11 @@ console.log('Private key first', serviceAccount.private_key);
  */
 export async function getAccessToken() {
     try {
-        // Asegúrate de que la clave privada tenga el formato correcto
-        const serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-    
-
-        // Reemplazar las secuencias \\n por saltos de línea reales
-        // const privateKey = serviceAccount.private_key.replace(/\\n/g, '\n');
-
-
         // Configuración del JWT
         const jwtClient = new JWT(
             serviceAccount.client_email,
             null,
-            serviceAccount,
+            serviceAccount.private_key,
             ['https://www.googleapis.com/auth/firebase.messaging'] // Scope necesario para FCM
         );
 
