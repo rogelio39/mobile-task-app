@@ -11,6 +11,9 @@ import MongoStore from 'connect-mongo';
 import { sendNotification } from './config/pushNotificationService.js';
 const app = express();
 
+process.env.TZ = 'America/Argentina/Buenos_Aires'; // Ajusta según tu zona horaria
+
+
 const URL1 = process.env.MODE === "DEV" ? process.env.LOCAL_URL : process.env.FRONTEND_URL;
 const whiteList = [URL1];
 
