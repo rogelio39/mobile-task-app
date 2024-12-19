@@ -1,4 +1,3 @@
-// NotificationsManager.js
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 
@@ -6,32 +5,40 @@ import Constants from 'expo-constants';
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
     }),
 });
 
-// Obtén el token del dispositivo
+// Obtén el token del dispositivo (Firebase)
 export async function registerForPushNotificationsAsync() {
-    // if (!Constants.isDevice) {
-    //     console.log('Solo dispositivos físicos pueden recibir notificaciones push.');
-    //     return null;
-    // }
+    try {
+        // if (!Constants.isDevice) {
+        //     console.warn('Advertencia: Pruebas en un simulador, no se podrán recibir notificaciones.');
+        //     return null;
+        // }
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-y
-    if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-    }
+        // Solicitar permisos para notificaciones
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
 
-    if (finalStatus !== 'granted') {
-        console.log('No se concedieron permisos para notificaciones.');
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+            console.warn('Permisos para notificaciones no concedidos.');
+            return null;
+        }
+
+        // Obtener el token del dispositivo para Firebase
+        const tokenData = await Notifications.getDevicePushTokenAsync();
+        console.log('Firebase Device Token:', tokenData.data);
+        return tokenData.data;
+
+    } catch (error) {
+        console.error('Error al registrar notificaciones push:', error);
         return null;
     }
-
-    const tokenData = await Notifications.getDevicePushTokenAsync();
-    console.log("tokendata en notificationtest", tokenData)
-    return tokenData.data;
 }

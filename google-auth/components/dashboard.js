@@ -11,6 +11,11 @@ import {
 import { useTaskContext } from '../Context/TasksContext';
 import FormTask from './formTask';
 import Toast from 'react-native-toast-message';
+import {registerForPushNotificationsAsync} from '../hooks/notificationsTest'
+
+// const URL1 = "http://10.0.2.2:5000"
+const URL1 = "https://mobile-task-app.onrender.com";
+
 
 
 const Dashboard = () => {
@@ -23,9 +28,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchAllTask = async () => {
             await loadAllTasks()
-            if (tasks.length != 0) {
-                setLoading(false)
-            }
+            setLoading(false)
         }
         fetchAllTask();
         // console.log("tasks en el useEffect de Dashboard", tasks);
@@ -89,7 +92,7 @@ const Dashboard = () => {
         acc[date].push(task);
         return acc;
     }, {}) : {};
-    
+
 
     if (loading) {
         return (

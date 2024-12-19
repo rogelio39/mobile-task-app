@@ -31,9 +31,9 @@ const FormTask = () => {
             if (token) {
                 console.log('Device Token:', token);
                 setDeviceToken(token);
-
-                // Envía el token al backend
-                if(deviceToken){
+    
+                try {
+                    // Enviar el token al backend
                     await fetch(`${URL1}/send-notification`, {
                         method: 'POST',
                         headers: {
@@ -45,14 +45,15 @@ const FormTask = () => {
                             body: 'Esto es una notificación de prueba',
                         }),
                     });
-
+                } catch (error) {
+                    console.error('Error al enviar el token al backend:', error);
                 }
             }
         }
-
+    
         getToken();
     }, []);
-
+    
 
     const validateForm = () => {
         if (!newTask.title || newTask.title.length < 3) {
@@ -105,6 +106,8 @@ const FormTask = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Añadir Nueva Tarea</Text>
+            <Text style={styles.title}>DeviceToken{deviceToken ? deviceToken : 'No se encontro devicetoken'}</Text>
+            
             <TextInput
                 style={[styles.input, error && !newTask.title && styles.inputError]}
                 value={newTask.title}
