@@ -24,6 +24,7 @@ const initializeFirebaseAdmin = async () => {
     try {
         const serviceAccount = await getServiceAccount();
         if (serviceAccount) {
+            console.log("serviceacount", serviceAccount)
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount),
             });
