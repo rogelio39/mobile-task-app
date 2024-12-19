@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config(); // Asegúrate de cargar las variables de entorno
 
-const serviceAccountJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_KEY_BASE64, 'base64').toString('utf-8');
+const serviceAccountJson = Buffer.from(process.env.GOOGLE_SERVICE_ACCOUNT_KEY, 'base64').toString('utf-8');
 const serviceAccount = JSON.parse(serviceAccountJson);
 
 admin.initializeApp({
