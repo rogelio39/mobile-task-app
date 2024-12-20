@@ -1,5 +1,5 @@
 import Task from '../models/Task.models.js';
-import { sendNotification } from '../config/pushNotificationService.js';
+import agenda from '../config/agenda.js';
 
 // Controlador para crear una nueva tarea
 
@@ -7,27 +7,20 @@ import { sendNotification } from '../config/pushNotificationService.js';
 // Función para ajustar la fecha a las 7 AM del mismo día
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
-    
-    // Configurar la fecha para que sea el mismo día a las 7 AM
-    notificationDate.setHours(7, 0, 0, 0); // 7 AM, 0 minutos, 0 segundos, 0 milisegundos
-    
+    notificationDate.setHours(7, 0, 0, 0); // 7 AM
     return notificationDate;
 };
 
-// Función para crear una tarea
 export const createTask = async (req, res) => {
     const { title, description, dueDate, priority, notes, createdBy, assignedTo, deviceToken } = req.body;
-    console.log("expopush", deviceToken)
-    console.log("body", req.body)
+
     try {
-        // Validar la fecha de vencimiento (dueDate)
         const dueDateObj = dueDate ? new Date(dueDate) : null;
 
         if (!dueDate || isNaN(dueDateObj.getTime())) {
             return res.status(400).json({ message: 'Fecha de vencimiento inválida' });
         }
 
-        // Crear la tarea
         const newTask = new Task({
             title,
             description,
@@ -43,15 +36,14 @@ export const createTask = async (req, res) => {
 
         console.log('Nueva tarea creada:', newTask);
 
-        // Configurar la hora de la notificación para las 7 AM del día de la fecha de vencimiento
+        // Programar el trabajo de notificación con Agenda
         const notificationTime = setNotificationTime(dueDateObj);
-
-        // Programar notificación push si se proporciona el token
         if (deviceToken) {
-            const notificationTitle = 'Recordatorio de tarea';
-            const notificationBody = `Tu tarea "${title}" vence hoy. ¡No olvides completarla!`;
-
-            sendNotification(deviceToken, notificationTitle, notificationBody);
+            await agenda.schedule(notificationTime, 'sendTaskNotification', {
+                deviceToken,
+                title,
+            });
+            console.log(`Notificación programada para: ${notificationTime}`);
         }
 
         res.status(201).json(newTask);
@@ -60,9 +52,6 @@ export const createTask = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la tarea', error: error.message });
     }
 };
-
-
-
 export const updateTask = async (req, res) => {
 
     const { title, description, dueDate, priority, notes } = req.body;

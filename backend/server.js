@@ -8,7 +8,7 @@ import EmailRouter from './routes/nodemail.routes.js';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import { sendNotification } from './config/pushNotificationService.js';
+import agenda from './config/agenda.js';
 const app = express();
 
 const URL1 = process.env.MODE === "DEV" ? process.env.LOCAL_URL : process.env.FRONTEND_URL;
@@ -59,24 +59,11 @@ app.use('/api/users', UserRouter);
 app.use('/api/tasks', TaskRouter);
 app.use('/api/email', EmailRouter);
 
-
-
-app.post('/send-notification', async (req, res) => {
-    const { deviceToken, title, body } = req.body;
-    console.log("devicetoke, title, body", deviceToken, title, body);
-
-    if (!deviceToken || !title || !body) {
-        return res.status(400).json({ error: 'Faltan campos necesarios' });
-    }
-
-    try {
-        const result = await sendNotification(deviceToken, title, body);
-        res.status(200).json({ success: true, result });
-    } catch (error) {
-        console.error('Error enviando notificación:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
-});
+// Inicializar Agenda
+(async function () {
+    await agenda.start();
+    console.log('Agenda iniciada');
+})();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
