@@ -6,7 +6,7 @@ dotenv.config();
 
 const agenda = new Agenda({
     db: {
-        address: process.env.MONGO_URI, 
+        address: process.env.MONGO_URL, 
         collection: 'agendaJobs', 
     },
     processEvery: '1 minute', // Intervalo de verificación
