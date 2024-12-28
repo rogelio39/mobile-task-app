@@ -10,8 +10,7 @@ const taskSchema = new mongoose.Schema({
     dueDate: { type: Date }, // Fecha límite de la tarea
     priority: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' }, // Nivel de prioridad
     notes: { type: String }, // Notas adicionales
-    createdAt: { type: Date, default: Date.now }, // Fecha de creación
-});
+}, { timestamps: true }); // Habilitar timestamps automáticamente
 
 const Task = mongoose.model('Task', taskSchema);
 

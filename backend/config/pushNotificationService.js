@@ -19,21 +19,29 @@ const getServiceAccount = async () => {
     }
 };
 
+const validateServiceAccount = (serviceAccount) => {
+    const requiredFields = ['project_id', 'private_key', 'client_email'];
+    for (const field of requiredFields) {
+        if (!serviceAccount[field]) {
+            throw new Error(`Missing field '${field}' in Service Account credentials`);
+        }
+    }
+};
+
 // Función para inicializar Firebase Admin
 const initializeFirebaseAdmin = async () => {
     try {
         const serviceAccount = await getServiceAccount();
-        if (serviceAccount) {
-            console.log("serviceacount", serviceAccount)
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount),
-            });
-            console.log('Firebase Admin SDK initialized successfully!');
-        }
+        validateServiceAccount(serviceAccount); // Validar antes de usar
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+        });
+        console.log('Firebase Admin SDK initialized successfully!');
     } catch (error) {
         console.error('Error initializing Firebase Admin SDK:', error.message);
     }
 };
+
 
 initializeFirebaseAdmin();  // Llamada a la función de inicialización
 
@@ -46,7 +54,8 @@ export async function sendNotification(deviceToken, title, body) {
         });
         console.log('Notificación enviada:', response);
     } catch (error) {
-        console.error('Error enviando notificación:', error);
-        throw new Error('No se pudo enviar la notificación.');
+        console.error('Error enviando notificación:', error.message);
+        throw new Error(`No se pudo enviar la notificación: ${error.message}`);
     }
 }
+
