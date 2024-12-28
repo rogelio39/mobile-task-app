@@ -47,6 +47,8 @@ export const createTask = async (req, res) => {
                     title,
                 });
                 console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id})`);
+                console.log(`Notificación programada para el usuario: ${assignedTo} con prioridad: ${priority} para la fecha: ${dueDate}`);
+
             } else {
                 console.log('Ya existe un trabajo programado para este dispositivo y tarea.');
             }
