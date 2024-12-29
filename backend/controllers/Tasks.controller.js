@@ -4,9 +4,11 @@ import agenda from '../config/agenda.js';
 // Función para ajustar la fecha a las 7 AM del mismo día
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
-    notificationDate.setHours(0, 30, 0, 0); // Establece la hora a las 7 AM
+    notificationDate.setUTCHours(0, 30, 0, 0); // Establece la hora a las 00:30 UTC
+    console.log('Fecha de notificación configurada:', notificationDate.toISOString());
     return notificationDate;
 };
+
 
 // Controlador para crear una nueva tarea
 export const createTask = async (req, res) => {
@@ -46,7 +48,7 @@ export const createTask = async (req, res) => {
                     deviceToken,
                     title,
                 });
-                console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id})`);
+                console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id}) (devicetoken: ${deviceToken})`);
                 console.log(`Notificación programada para el usuario: ${assignedTo} con prioridad: ${priority} para la fecha: ${dueDate}`);
 
             } else {
