@@ -1,16 +1,14 @@
 import admin from 'firebase-admin';
-import ServiceAccount from '../models/serviceAccount.models.js';  // Importas el modelo previamente definido
+import ServiceAccount from '../models/serviceAccount.models.js'; // Importas el modelo previamente definido
 import 'dotenv/config';
 
+// Obtener el documento con las credenciales de Firebase desde MongoDB
 const getServiceAccount = async () => {
     try {
-        // Obtener el documento que contiene las credenciales de Firebase
         const serviceAccountDoc = await ServiceAccount.findOne();
         if (!serviceAccountDoc) {
             throw new Error('Service Account not found in MongoDB');
         }
-
-        // Usar las credenciales para Firebase Admin
         const serviceAccount = serviceAccountDoc.credentials;
         return serviceAccount;
     } catch (error) {
@@ -19,6 +17,7 @@ const getServiceAccount = async () => {
     }
 };
 
+// Validar las credenciales de la cuenta de servicio
 const validateServiceAccount = (serviceAccount) => {
     const requiredFields = ['project_id', 'private_key', 'client_email'];
     for (const field of requiredFields) {
@@ -28,7 +27,7 @@ const validateServiceAccount = (serviceAccount) => {
     }
 };
 
-// Función para inicializar Firebase Admin
+// Inicializar Firebase Admin SDK
 const initializeFirebaseAdmin = async () => {
     try {
         const serviceAccount = await getServiceAccount();
@@ -42,20 +41,37 @@ const initializeFirebaseAdmin = async () => {
     }
 };
 
-
-initializeFirebaseAdmin();  // Llamada a la función de inicialización
+initializeFirebaseAdmin(); // Inicializar Firebase Admin al cargar el servicio
 
 // Función para enviar notificaciones
 export async function sendNotification(deviceToken, title, body) {
     try {
-        const response = await admin.messaging().send({
+        const message = {
             token: deviceToken,
-            notification: { title, body },
-        });
+            notification: {
+                title,
+                body,
+            },
+            android: {
+                priority: 'high',
+            },
+            apns: {
+                headers: {
+                    'apns-priority': '10',
+                },
+                payload: {
+                    aps: {
+                        sound: 'default',
+                    },
+                },
+            },
+        };
+
+        const response = await admin.messaging().send(message);
+
         console.log('Notificación enviada:', response);
     } catch (error) {
         console.error('Error enviando notificación:', error.message);
         throw new Error(`No se pudo enviar la notificación: ${error.message}`);
     }
 }
-
