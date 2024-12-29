@@ -4,7 +4,7 @@ import agenda from '../config/agenda.js';
 // Función para ajustar la fecha a las 7 AM del mismo día
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
-    notificationDate.setHours(7, 0, 0, 0); // Establece la hora a las 7 AM
+    notificationDate.setHours(0, 30, 0, 0); // Establece la hora a las 7 AM
     return notificationDate;
 };
 
