@@ -106,7 +106,6 @@ const FormTask = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Añadir Nueva Tarea</Text>
-            <Text style={styles.title}>DeviceToken{deviceToken ? deviceToken : 'No se encontro devicetoken'}</Text>
             
             <TextInput
                 style={[styles.input, error && !newTask.title && styles.inputError]}
