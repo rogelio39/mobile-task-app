@@ -9,7 +9,6 @@ import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import agenda from './config/agenda.js';
-import express from 'express';
 import bodyParser from 'body-parser';
 import { Expo } from 'expo-server-sdk';
 
