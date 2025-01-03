@@ -65,6 +65,46 @@ app.use('/api/email', EmailRouter);
     console.log('Agenda iniciada');
 })();
 
+app.post('/send-notification', async (req, res) => {
+    const { deviceToken, title, body } = req.body;
+
+    // Validar los datos de entrada
+    if (!deviceToken || !title || !body) {
+        return res.status(400).json({ error: 'Faltan parámetros necesarios' });
+    }
+
+    // Crear un mensaje push
+    const messages = [];
+    if (Expo.isExpoPushToken(deviceToken)) {
+        messages.push({
+            to: deviceToken,
+            sound: 'default',
+            title,
+            body,
+            data: { withSome: 'data' },
+        });
+    } else {
+        return res.status(400).json({ error: 'Token del dispositivo no válido' });
+    }
+
+    try {
+        // Enviar las notificaciones
+        const ticketChunks = await expo.chunkPushNotifications(messages);
+        const tickets = [];
+        for (const chunk of ticketChunks) {
+            const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            tickets.push(...ticketChunk);
+        }
+
+        console.log('Notificaciones enviadas:', tickets);
+        res.status(200).json({ message: 'Notificación enviada correctamente', tickets });
+    } catch (error) {
+        console.error('Error al enviar notificación:', error);
+        res.status(500).json({ error: 'Error al enviar la notificación' });
+    }
+});
+
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
