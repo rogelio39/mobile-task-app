@@ -12,8 +12,7 @@ import agenda from './config/agenda.js';
 import bodyParser from 'body-parser';
 import { Expo } from 'expo-server-sdk';
 
-// Middleware para parsear JSON
-app.use(bodyParser.json());
+
 
 // Crear una nueva instancia de Expo Server SDK
 const expo = new Expo();
@@ -35,6 +34,9 @@ const corsOptions = {
     },
     credentials: true
 };
+
+// Middleware para parsear JSON
+app.use(bodyParser.json());
 
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
