@@ -9,6 +9,18 @@ import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import agenda from './config/agenda.js';
+import express from 'express';
+import bodyParser from 'body-parser';
+import { Expo } from 'expo-server-sdk';
+
+// Middleware para parsear JSON
+app.use(bodyParser.json());
+
+// Crear una nueva instancia de Expo Server SDK
+const expo = new Expo();
+
+
+
 const app = express();
 
 const URL1 = process.env.MODE === "DEV" ? process.env.LOCAL_URL : process.env.FRONTEND_URL;
@@ -67,6 +79,7 @@ app.use('/api/email', EmailRouter);
 
 app.post('/send-notification', async (req, res) => {
     const { deviceToken, title, body } = req.body;
+    console.log("datos en send notification", deviceToken, title, body)
 
     // Validar los datos de entrada
     if (!deviceToken || !title || !body) {
