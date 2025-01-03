@@ -5,7 +5,6 @@ import agenda from '../config/agenda.js';
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
     notificationDate.setUTCHours(0, 30, 0, 0); // Establece la hora a las 00:30 UTC
-    console.log('Fecha de notificación configurada:', notificationDate.toISOString());
     return notificationDate;
 };
 

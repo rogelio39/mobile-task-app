@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator, To
 import { useTaskContext } from "../Context/TasksContext";
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {registerForPushNotificationsAsync} from '../hooks/notificationsTest'
+import { registerForPushNotificationsAsync } from '../hooks/notificationsTest'
 
 
 // const URL1 = "http://10.0.2.2:5000"
@@ -15,6 +15,7 @@ const FormTask = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [deviceToken, setDeviceToken] = useState('');
+    const [notification, setNotification] = useState(null);
 
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [newTask, setNewTask] = useState({
@@ -24,14 +25,25 @@ const FormTask = () => {
         notes: '',
         dueDate: ''
     });
-    
+
+    useEffect(() => {
+        // Listener para notificaciones en primer plano
+        const foregroundSubscription = Notifications.addNotificationReceivedListener((notification) => {
+            console.log('Notificación recibida:', notification);
+            setNotification(notification); // Guardar la notificación si quieres usarla
+        });
+
+        // Cleanup del listener
+        return () => foregroundSubscription.remove();
+    }, []);
+
     useEffect(() => {
         async function getToken() {
             const token = await registerForPushNotificationsAsync();
             if (token) {
                 console.log('Device Token:', token);
                 setDeviceToken(token);
-    
+
                 try {
                     // Enviar el token al backend
                     await fetch(`${URL1}/send-notification`, {
@@ -50,10 +62,10 @@ const FormTask = () => {
                 }
             }
         }
-    
+
         getToken();
     }, []);
-    
+
 
     const validateForm = () => {
         if (!newTask.title || newTask.title.length < 3) {
@@ -81,8 +93,8 @@ const FormTask = () => {
 
         setLoading(true);
         try {
-            const taskData = { 
-                ...newTask, 
+            const taskData = {
+                ...newTask,
                 deviceToken
             };
             await addTask(taskData);
@@ -105,8 +117,11 @@ const FormTask = () => {
 
     return (
         <View style={styles.container}>
+            <View>
+                <Text>Notificaciones: {notification?.request.content.title}</Text>
+            </View>
             <Text style={styles.title}>Añadir Nueva Tarea</Text>
-            
+
             <TextInput
                 style={[styles.input, error && !newTask.title && styles.inputError]}
                 value={newTask.title}
