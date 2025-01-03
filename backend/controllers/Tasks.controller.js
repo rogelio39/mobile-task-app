@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'; // Asegúrate de tener fetch disponible en tu backend
 import Task from '../models/Task.models.js';
 import agenda from '../config/agenda.js';
 
@@ -8,6 +9,34 @@ const setNotificationTime = (sendDate) => {
     return notificationDate;
 };
 
+// Función para enviar la notificación inmediatamente
+const sendNotification = async (deviceToken, title, body) => {
+    try {
+        const response = await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                to: deviceToken,
+                sound: 'default',
+                title,
+                body,
+                priority: 'high',
+            }),
+        });
+
+        const data = await response.json();
+        console.log('Respuesta de Expo:', data);
+
+        if (data.errors) {
+            console.error('Errores al enviar la notificación:', data.errors);
+        }
+    } catch (error) {
+        console.error('Error al enviar la notificación inmediata:', error);
+    }
+};
 
 // Controlador para crear una nueva tarea
 export const createTask = async (req, res) => {
@@ -34,12 +63,17 @@ export const createTask = async (req, res) => {
         await newTask.save();
         console.log('Nueva tarea creada:', newTask);
 
-        // Programar la notificación
+        // Enviar notificación inmediatamente
+        if (deviceToken) {
+            await sendNotification(deviceToken, 'Nueva Tarea Asignada', `Se te ha asignado la tarea: ${title}`);
+        }
+
+        // Programar la notificación para el futuro
         const notificationTime = setNotificationTime(dueDateObj);
         if (deviceToken) {
-            const existingJob = await agenda.jobs({ 
-                'data.deviceToken': deviceToken, 
-                'data.title': title 
+            const existingJob = await agenda.jobs({
+                'data.deviceToken': deviceToken,
+                'data.title': title,
             });
 
             if (existingJob.length === 0) {
@@ -47,9 +81,7 @@ export const createTask = async (req, res) => {
                     deviceToken,
                     title,
                 });
-                console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id}) (devicetoken: ${deviceToken})`);
-                console.log(`Notificación programada para el usuario: ${assignedTo} con prioridad: ${priority} para la fecha: ${dueDate}`);
-
+                console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id})`);
             } else {
                 console.log('Ya existe un trabajo programado para este dispositivo y tarea.');
             }
@@ -61,6 +93,7 @@ export const createTask = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la tarea', error: error.message });
     }
 };
+
 
 export const updateTask = async (req, res) => {
 
