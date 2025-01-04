@@ -1,6 +1,7 @@
 import fetch from 'node-fetch'; // Asegúrate de tener fetch disponible en tu backend
 import Task from '../models/Task.models.js';
 import agenda from '../config/agenda.js';
+import { sendNotification } from '../config/pushNotificationService.js';
 
 // // Función para ajustar la fecha a las 7 AM del mismo día
 // const setNotificationTime = (sendDate) => {
@@ -95,8 +96,6 @@ import agenda from '../config/agenda.js';
 // };
 
 
-import Task from '../models/Task.models.js';
-import { sendNotification } from '../config/pushNotificationService.js';
 
 // Controlador para crear una nueva tarea
 
