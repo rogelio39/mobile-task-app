@@ -3,127 +3,28 @@ import Task from '../models/Task.models.js';
 import agenda from '../config/agenda.js';
 import { sendNotification } from '../config/pushNotificationService.js';
 
-// // Función para ajustar la fecha a las 7 AM del mismo día
-// const setNotificationTime = (sendDate) => {
-//     const notificationDate = new Date(sendDate);
-//     notificationDate.setUTCHours(0, 30, 0, 0); // Establece la hora a las 00:30 UTC
-//     return notificationDate;
-// };
-
-// // Función para enviar la notificación inmediatamente
-// const sendNotification = async (deviceToken, title, body) => {
-//     try {
-//         const response = await fetch('https://exp.host/--/api/v2/push/send', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Accept': 'application/json',
-//             },
-//             body: JSON.stringify({
-//                 to: deviceToken,
-//                 sound: 'default',
-//                 title,
-//                 body,
-//                 priority: 'high',
-//             }),
-//         });
-
-//         const data = await response.json();
-//         console.log('Respuesta de Expo:', data);
-
-//         if (data.errors) {
-//             console.error('Errores al enviar la notificación:', data.errors);
-//         }
-//     } catch (error) {
-//         console.error('Error al enviar la notificación inmediata:', error);
-//     }
-// };
-
-// Controlador para crear una nueva tarea
-// export const createTask = async (req, res) => {
-//     const { title, description, dueDate, priority, notes, createdBy, assignedTo, deviceToken } = req.body;
-
-//     try {
-//         // Validar y parsear la fecha de vencimiento
-//         const dueDateObj = dueDate ? new Date(dueDate) : null;
-//         if (!dueDate || isNaN(dueDateObj.getTime())) {
-//             return res.status(400).json({ message: 'Fecha de vencimiento inválida' });
-//         }
-
-//         // Crear la tarea en la base de datos
-//         const newTask = new Task({
-//             title,
-//             description,
-//             dueDate: dueDateObj,
-//             priority: priority || 'Medium',
-//             notes,
-//             createdBy: req.user._id,
-//             assignedTo: assignedTo || req.user._id,
-//             completed: false,
-//         });
-//         await newTask.save();
-//         console.log('Nueva tarea creada:', newTask);
-
-//         // Enviar notificación inmediatamente
-//         if (deviceToken) {
-//             await sendNotification(deviceToken, 'Nueva Tarea Asignada', `Se te ha asignado la tarea: ${title}`);
-//         }
-
-//         // Programar la notificación para el futuro
-//         const notificationTime = setNotificationTime(dueDateObj);
-//         if (deviceToken) {
-//             const existingJob = await agenda.jobs({
-//                 'data.deviceToken': deviceToken,
-//                 'data.title': title,
-//             });
-
-//             if (existingJob.length === 0) {
-//                 const job = await agenda.schedule(notificationTime, 'sendTaskNotification', {
-//                     deviceToken,
-//                     title,
-//                 });
-//                 console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id})`);
-//             } else {
-//                 console.log('Ya existe un trabajo programado para este dispositivo y tarea.');
-//             }
-//         }
-
-//         res.status(201).json(newTask);
-//     } catch (error) {
-//         console.error('Error al crear la tarea:', error);
-//         res.status(500).json({ message: 'Error al crear la tarea', error: error.message });
-//     }
-// };
-
-
-
-// Controlador para crear una nueva tarea
-
-
 // Función para ajustar la fecha a las 7 AM del mismo día
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
-    
-    // Configurar la fecha para que sea el mismo día a las 7 AM
-    notificationDate.setHours(7, 0, 0, 0); // 7 AM, 0 minutos, 0 segundos, 0 milisegundos
-    
+    notificationDate.setUTCHours(0, 30, 0, 0); // Establece la hora a las 00:30 UTC
     return notificationDate;
 };
 
-// Función para crear una tarea
+// Función para enviar la notificación inmediatamente
+
+
+// Controlador para crear una nueva tarea
 export const createTask = async (req, res) => {
     const { title, description, dueDate, priority, notes, createdBy, assignedTo, deviceToken } = req.body;
-    console.log("expopush", deviceToken)
-    console.log("body", req.body)
-    try {
-        // Validar la fecha de vencimiento (dueDate)
-        const dueDateObj = dueDate ? new Date(dueDate) : null;
 
+    try {
+        // Validar y parsear la fecha de vencimiento
+        const dueDateObj = dueDate ? new Date(dueDate) : null;
         if (!dueDate || isNaN(dueDateObj.getTime())) {
             return res.status(400).json({ message: 'Fecha de vencimiento inválida' });
         }
 
-        // Crear la tarea
+        // Crear la tarea en la base de datos
         const newTask = new Task({
             title,
             description,
@@ -134,20 +35,31 @@ export const createTask = async (req, res) => {
             assignedTo: assignedTo || req.user._id,
             completed: false,
         });
-
         await newTask.save();
-
         console.log('Nueva tarea creada:', newTask);
 
-        // Configurar la hora de la notificación para las 7 AM del día de la fecha de vencimiento
-        const notificationTime = setNotificationTime(dueDateObj);
-
-        // Programar notificación push si se proporciona el token
+        // Enviar notificación inmediatamente
         if (deviceToken) {
-            const notificationTitle = 'Recordatorio de tarea';
-            const notificationBody = `Tu tarea "${title}" vence hoy. ¡No olvides completarla!`;
+            await sendNotification(deviceToken, 'Nueva Tarea Asignada', `Se te ha asignado la tarea: ${title}`);
+        }
 
-            sendNotification(deviceToken, notificationTitle, notificationBody);
+        // Programar la notificación para el futuro
+        const notificationTime = setNotificationTime(dueDateObj);
+        if (deviceToken) {
+            const existingJob = await agenda.jobs({
+                'data.deviceToken': deviceToken,
+                'data.title': title,
+            });
+
+            if (existingJob.length === 0) {
+                const job = await agenda.schedule(notificationTime, 'sendTaskNotification', {
+                    deviceToken,
+                    title,
+                });
+                console.log(`Notificación programada para: ${notificationTime} (Job ID: ${job.attrs._id})`);
+            } else {
+                console.log('Ya existe un trabajo programado para este dispositivo y tarea.');
+            }
         }
 
         res.status(201).json(newTask);

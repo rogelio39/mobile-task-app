@@ -72,11 +72,17 @@ app.use('/api/users', UserRouter);
 app.use('/api/tasks', TaskRouter);
 app.use('/api/email', EmailRouter);
 
-// Inicializar Agenda
-(async function () {
-    await agenda.start();
-    console.log('Agenda iniciada');
+
+// Inicia la Agenda
+(async () => {
+    try {
+        await agenda.start(); // Inicia Agenda
+        console.log('Agenda iniciada correctamente');
+    } catch (error) {
+        console.error('Error al iniciar Agenda:', error);
+    }
 })();
+
 
 app.post('/send-notification', async (req, res) => {
     const { deviceToken, title, body } = req.body;

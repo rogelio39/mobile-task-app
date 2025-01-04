@@ -26,15 +26,7 @@ agenda.define('sendTaskNotification', async (job) => {
     }
 });
 
-// Iniciar Agenda
-(async function () {
-    try {
-        await agenda.start();
-        console.log('Agenda iniciada correctamente');
-    } catch (error) {
-        console.error('Error al iniciar Agenda:', error);
-    }
-})();
+
 
 export default agenda;
 
