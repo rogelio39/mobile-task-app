@@ -6,9 +6,17 @@ import { sendNotification } from '../config/pushNotificationService.js';
 // Función para ajustar la fecha a las 7 AM del mismo día
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
-    notificationDate.setUTCHours(0, 30, 0, 0); // Establece la hora a las 00:30 UTC
+    notificationDate.setUTCHours(0, 30, 0, 0); // Establecer a las 00:30 UTC
+
+    const now = new Date();
+    if (notificationDate <= now) {
+        // Si la fecha está en el pasado, ajusta al día siguiente
+        notificationDate.setDate(notificationDate.getDate() + 1);
+    }
+
     return notificationDate;
 };
+
 
 // Función para enviar la notificación inmediatamente
 
@@ -45,6 +53,8 @@ export const createTask = async (req, res) => {
 
         // Programar la notificación para el futuro
         const notificationTime = setNotificationTime(dueDateObj);
+        console.log(`Fecha de notificación programada: ${notificationTime.toISOString()}`);
+
         if (deviceToken) {
             const existingJob = await agenda.jobs({
                 'data.deviceToken': deviceToken,
