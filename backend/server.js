@@ -74,10 +74,19 @@ app.use('/api/email', EmailRouter);
 
 
 // Inicia la Agenda
+// Inicia la Agenda
 (async () => {
     try {
         await agenda.start(); // Inicia Agenda
         console.log('Agenda iniciada correctamente');
+
+        // Programar un trabajo de prueba
+        await agenda.schedule('in 1 minute', 'sendTaskNotification', {
+            deviceToken: 'cputyx-kQ7ijHoZ2itwmB-:APA91bEz7wIL3XlpBZG3ywFbyP0WyKl5qagtttHzWy0a_NX2XuYYDdGohvGi7wVieHslSl1VuLYU0UYvOOLn1qAJxOwcq_50jYM7aMKoQgMbCBWZ3haI00c',
+            title: 'Notificación programada automáticamente',
+        });
+
+        console.log('Trabajo programado para ejecutarse en 1 minuto');
     } catch (error) {
         console.error('Error al iniciar Agenda:', error);
     }

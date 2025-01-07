@@ -10,7 +10,20 @@ const agenda = new Agenda({
         address: process.env.MONGO_URL, // URI de tu base de datos
         collection: 'agendaJobs', // Colección donde Agenda almacena los trabajos
     },
-    processEvery: '1 minute', // Verificar trabajos cada 10 segundos
+    processEvery: '1 minute', // Verificar trabajos cada minuto
+});
+
+// Agregar eventos para depuración
+agenda.on('start', (job) => {
+    console.log(`Job ${job.attrs.name} iniciado a las ${new Date()}`);
+});
+
+agenda.on('success', (job) => {
+    console.log(`Job ${job.attrs.name} completado a las ${new Date()}`);
+});
+
+agenda.on('fail', (err, job) => {
+    console.error(`Job ${job.attrs.name} falló con error: ${err.message}`);
 });
 
 // Definir el trabajo "sendTaskNotification"
@@ -26,9 +39,8 @@ agenda.define('sendTaskNotification', async (job) => {
     }
 });
 
-
-
 export default agenda;
+
 
 
 
