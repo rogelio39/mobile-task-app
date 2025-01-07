@@ -6,6 +6,7 @@ import 'dotenv/config';
 const getServiceAccount = async () => {
     try {
         const serviceAccountDoc = await ServiceAccount.findOne();
+        console.log("service account", serviceAccountDoc)
         if (!serviceAccountDoc) {
             throw new Error('Service Account not found in MongoDB');
         }
@@ -28,7 +29,7 @@ const validateServiceAccount = (serviceAccount) => {
 };
 
 // Inicializar Firebase Admin SDK
-const initializeFirebaseAdmin = async () => {
+export const initializeFirebaseAdmin = async () => {
     try {
         const serviceAccount = await getServiceAccount();
         validateServiceAccount(serviceAccount); // Validar antes de usar
@@ -41,7 +42,7 @@ const initializeFirebaseAdmin = async () => {
     }
 };
 
-initializeFirebaseAdmin(); // Inicializar Firebase Admin al cargar el servicio
+
 
 // Función para enviar notificaciones
 export async function sendNotification(deviceToken, title, body) {

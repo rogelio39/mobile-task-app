@@ -11,6 +11,7 @@ import MongoStore from 'connect-mongo';
 import agenda from './config/agenda.js';
 import bodyParser from 'body-parser';
 import { Expo } from 'expo-server-sdk';
+import { initializeFirebaseAdmin } from './config/pushNotificationService.js';
 
 
 
@@ -44,6 +45,8 @@ app.use((req, res, next) => {
     res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
     next();
 });
+
+initializeFirebaseAdmin(); // Inicializar Firebase Admin al cargar el servicio
 
 app.use(express.json());
 
