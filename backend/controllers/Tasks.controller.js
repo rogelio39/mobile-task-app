@@ -3,31 +3,12 @@ import Task from '../models/Task.models.js';
 import agenda from '../config/agenda.js';
 import { sendNotification } from '../config/pushNotificationService.js';
 
-// Función para ajustar la fecha a las 7 AM del mismo día
-const setNotificationTime = (sendDate) => {
-    const notificationDate = new Date(sendDate);
-
-    // Configurar las 00:10 (12:10 AM) en horario de Tucumán
-    notificationDate.setHours(0, 10, 0, 0); // Medianoche + 10 minutos local
-
-    // Ajustar a UTC considerando la diferencia de zona horaria (UTC-3)
-    notificationDate.setUTCHours(notificationDate.getUTCHours() + 3);
-
+// Función para calcular el tiempo de notificación (1 hora después de la creación)
+const setNotificationTime = () => {
     const now = new Date();
-
-    if (notificationDate <= now) {
-        // Si la fecha ya pasó, mover al día siguiente
-        notificationDate.setDate(notificationDate.getDate() + 1);
-    }
-
-    return notificationDate;
+    now.setHours(now.getHours() + 1); // Agrega 1 hora a la hora actual
+    return now;
 };
-
-
-
-
-// Función para enviar la notificación inmediatamente
-
 
 // Controlador para crear una nueva tarea
 export const createTask = async (req, res) => {
@@ -54,14 +35,9 @@ export const createTask = async (req, res) => {
         await newTask.save();
         console.log('Nueva tarea creada:', newTask);
 
-        // Enviar notificación inmediatamente
-        if (deviceToken) {
-            await sendNotification(deviceToken, 'Nueva Tarea Asignada', `Se te ha asignado la tarea: ${title}`);
-        }
-
-        // Programar la notificación para el futuro
-        const notificationTime = setNotificationTime(dueDateObj);
-        console.log(`Fecha de notificación programada: ${notificationTime.toISOString()}`);
+        // Programar la notificación una hora después
+        const notificationTime = setNotificationTime();
+        console.log(`Notificación programada para: ${notificationTime.toISOString()}`);
 
         if (deviceToken) {
             const existingJob = await agenda.jobs({
@@ -86,6 +62,7 @@ export const createTask = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la tarea', error: error.message });
     }
 };
+
 
 
 
