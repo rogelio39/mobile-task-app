@@ -6,9 +6,12 @@ import { sendNotification } from '../config/pushNotificationService.js';
 // Función para ajustar la fecha a las 7 AM del mismo día
 const setNotificationTime = (sendDate) => {
     const notificationDate = new Date(sendDate);
-    notificationDate.setUTCHours(17, 0, 0, 0); // Establecer a las 00:30 UTC
+    
+    // Establecer la hora para Tucumán (UTC-3)
+    notificationDate.setHours(3 - 3, 0, 0, 0); // Restar 3 horas para ajustar a UTC-3
 
     const now = new Date();
+    
     if (notificationDate <= now) {
         // Si la fecha está en el pasado, ajusta al día siguiente
         notificationDate.setDate(notificationDate.getDate() + 1);
@@ -16,6 +19,7 @@ const setNotificationTime = (sendDate) => {
 
     return notificationDate;
 };
+
 
 
 // Función para enviar la notificación inmediatamente
