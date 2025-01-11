@@ -12,7 +12,7 @@ import agenda from './config/agenda.js';
 import bodyParser from 'body-parser';
 import { Expo } from 'expo-server-sdk';
 import { initializeFirebaseAdmin } from './config/pushNotificationService.js';
-
+import { sendNotification } from './config/pushNotificationService.js';
 
 
 // Crear una nueva instancia de Expo Server SDK
