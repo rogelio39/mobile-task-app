@@ -76,15 +76,23 @@ app.use('/api/tasks', TaskRouter);
 app.use('/api/email', EmailRouter);
 
 
-// Inicia la Agenda
-// Inicia la Agenda
+// Define el trabajo
+agenda.define('sendTaskNotification', async (job) => {
+    const { deviceToken, title } = job.attrs.data;
+    console.log(`Enviando notificación: ${title} al dispositivo: ${deviceToken}`);
+    await sendNotification(deviceToken, title); // Asegúrate de implementar esta función
+});
+
+// Inicia Agenda y programa un trabajo de prueba
 (async () => {
     try {
-        await agenda.start(); // Inicia Agenda
+        await agenda.start();
         console.log('Agenda iniciada correctamente');
 
-        // Programar un trabajo de prueba
-        await agenda.schedule('in 1 minute', 'sendTaskNotification', {
+        const runAt = new Date();
+        runAt.setMinutes(runAt.getMinutes() + 1); // 1 minuto después de ahora
+
+        await agenda.schedule(runAt, 'sendTaskNotification', {
             deviceToken: 'cputyx-kQ7ijHoZ2itwmB-:APA91bEz7wIL3XlpBZG3ywFbyP0WyKl5qagtttHzWy0a_NX2XuYYDdGohvGi7wVieHslSl1VuLYU0UYvOOLn1qAJxOwcq_50jYM7aMKoQgMbCBWZ3haI00c',
             title: 'Notificación programada automáticamente',
         });
@@ -94,6 +102,18 @@ app.use('/api/email', EmailRouter);
         console.error('Error al iniciar Agenda:', error);
     }
 })();
+
+agenda.on('start', (job) => {
+    console.log(`Job ${job.attrs.name} se ha iniciado`);
+});
+
+agenda.on('complete', (job) => {
+    console.log(`Job ${job.attrs.name} se ha completado`);
+});
+
+agenda.on('fail', (err, job) => {
+    console.error(`Job ${job.attrs.name} falló con el error: ${err.message}`);
+});
 
 
 app.post('/send-notification', async (req, res) => {
