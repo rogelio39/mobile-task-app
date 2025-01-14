@@ -85,28 +85,6 @@ agenda.define('sendTaskNotification', async (job) => {
 
 
 
-(async () => {
-    try {
-        // Conéctate a tu base de datos MongoDB
-        await mongoose.connect(process.env.MONGO_URL, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-
-        console.log('Conexión a MongoDB establecida');
-
-        // Accede a la colección `agendaJobs`
-        const jobs = await mongoose.connection.db.collection('agendaJobs').find().toArray();
-        
-        console.log('Trabajos programados:');
-        console.log(jobs);
-
-        // Opcional: cerrar conexión después de la consulta
-        await mongoose.connection.close();
-    } catch (error) {
-        console.error('Error al inspeccionar los trabajos:', error);
-    }
-})();
 
 // Inicia Agenda y programa un trabajo de prueba
 (async () => {
