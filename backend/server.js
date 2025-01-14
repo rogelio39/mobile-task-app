@@ -182,7 +182,6 @@ app.post('/send-notification', async (req, res) => {
 });
 
 
-db.agendaJobs.find().pretty()
 
 
 
