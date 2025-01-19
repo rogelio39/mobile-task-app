@@ -45,6 +45,11 @@ export const createTask = async (req, res) => {
                 'data.deviceToken': deviceToken,
                 'data.title': title,
             });
+            const job1= await agenda.schedule('sendTaskNotification', {
+                deviceToken,
+                title,
+            });
+            console.log("job1", job1)
 
             if (existingJob.length === 0) {
                 const job = await agenda.schedule(notificationTime, 'sendTaskNotification', {

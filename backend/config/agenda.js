@@ -26,6 +26,8 @@ agenda.on('fail', (err, job) => {
     console.error(`Job ${job.attrs.name} falló con error: ${err.message}`);
 });
 
+
+
 // Definir el trabajo "sendTaskNotification"
 agenda.define('sendTaskNotification', async (job) => {
     const { deviceToken, title } = job.attrs.data;
