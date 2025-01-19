@@ -33,9 +33,7 @@ agenda.define('sendTaskNotification', async (job) => {
     const { deviceToken, title } = job.attrs.data;
 
     try {
-        console.log(`Enviando notificación para la tarea: ${title}`);
         await sendNotification(deviceToken, 'Recordatorio de tarea', `Tu tarea "${title}" vence hoy. ¡No olvides completarla!`);
-        console.log(`Notificación enviada con éxito para la tarea: ${title}`);
     } catch (error) {
         console.error(`Error al enviar la notificación para la tarea "${title}":`, error);
     }

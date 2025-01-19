@@ -6,7 +6,6 @@ import 'dotenv/config';
 const getServiceAccount = async () => {
     try {
         const serviceAccountDoc = await ServiceAccount.findOne();
-        console.log("service account", serviceAccountDoc)
         if (!serviceAccountDoc) {
             throw new Error('Service Account not found in MongoDB');
         }
@@ -70,7 +69,7 @@ export async function sendNotification(deviceToken, title, body) {
 
         const response = await admin.messaging().send(message);
 
-        console.log('Notificación enviada:', response);
+
     } catch (error) {
         console.error('Error enviando notificación:', error.message);
         throw new Error(`No se pudo enviar la notificación: ${error.message}`);

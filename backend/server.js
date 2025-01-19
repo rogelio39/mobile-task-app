@@ -88,10 +88,8 @@ app.use('/api/email', EmailRouter);
 
         await agenda.schedule(runAt, 'sendTaskNotification', {
             deviceToken: 'cputyx-kQ7ijHoZ2itwmB-:APA91bEz7wIL3XlpBZG3ywFbyP0WyKl5qagtttHzWy0a_NX2XuYYDdGohvGi7wVieHslSl1VuLYU0UYvOOLn1qAJxOwcq_50jYM7aMKoQgMbCBWZ3haI00c',
-            title: 'Notificación programada automáticamente',
+            title: 'Notificación programada automáticamente en server',
         });
-
-        console.log('Trabajo programado para ejecutarse en 1 minuto');
     } catch (error) {
         console.error('Error al iniciar Agenda:', error);
     }
@@ -112,7 +110,7 @@ agenda.on('fail', (err, job) => {
 // Define el trabajo
 agenda.define('sendTaskNotification', async (job) => {
     const { deviceToken, title } = job.attrs.data;
-    console.log(`Enviando notificación: ${title} al dispositivo: ${deviceToken}`);
+    console.log(`Enviando notificación: ${title} al dispositivo: ${deviceToken} en server`);
     await sendNotification(deviceToken, title); // Asegúrate de implementar esta función
 });
 
