@@ -10,13 +10,10 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import agenda from './config/agenda.js';
 import bodyParser from 'body-parser';
-import { Expo } from 'expo-server-sdk';
 import { initializeFirebaseAdmin } from './config/pushNotificationService.js';
 import { sendNotification } from './config/pushNotificationService.js';
 
 
-// Crear una nueva instancia de Expo Server SDK
-const expo = new Expo();
 
 
 
@@ -76,12 +73,6 @@ app.use('/api/tasks', TaskRouter);
 app.use('/api/email', EmailRouter);
 
 
-// Define el trabajo
-agenda.define('sendTaskNotification', async (job) => {
-    const { deviceToken, title } = job.attrs.data;
-    console.log(`Enviando notificación: ${title} al dispositivo: ${deviceToken}`);
-    await sendNotification(deviceToken, title); // Asegúrate de implementar esta función
-});
 
 
 
@@ -117,6 +108,16 @@ agenda.on('complete', (job) => {
 agenda.on('fail', (err, job) => {
     console.error(`Job ${job.attrs.name} falló con el error: ${err.message}`);
 });
+
+// Define el trabajo
+agenda.define('sendTaskNotification', async (job) => {
+    const { deviceToken, title } = job.attrs.data;
+    console.log(`Enviando notificación: ${title} al dispositivo: ${deviceToken}`);
+    await sendNotification(deviceToken, title); // Asegúrate de implementar esta función
+});
+
+
+
 
 
 
