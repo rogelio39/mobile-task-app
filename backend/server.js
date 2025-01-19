@@ -83,13 +83,6 @@ app.use('/api/email', EmailRouter);
         await agenda.start();
         console.log('Agenda iniciada correctamente');
 
-        const runAt = new Date();
-        runAt.setMinutes(runAt.getMinutes() + 1); // 1 minuto después de ahora
-
-        await agenda.schedule(runAt, 'sendTaskNotification', {
-            deviceToken: 'cputyx-kQ7ijHoZ2itwmB-:APA91bEz7wIL3XlpBZG3ywFbyP0WyKl5qagtttHzWy0a_NX2XuYYDdGohvGi7wVieHslSl1VuLYU0UYvOOLn1qAJxOwcq_50jYM7aMKoQgMbCBWZ3haI00c',
-            title: 'Notificación programada automáticamente en server',
-        });
     } catch (error) {
         console.error('Error al iniciar Agenda:', error);
     }
