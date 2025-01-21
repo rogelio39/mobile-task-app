@@ -6,7 +6,7 @@ import { sendNotification } from '../config/pushNotificationService.js';
 // Función para calcular el tiempo de notificación (1 hora después de la creación)
 const setNotificationTime = () => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 5); // Agrega 5 minutos a la hora actual
+    now.setMinutes(now.getMinutes() + 20); // Agrega 5 minutos a la hora actual
     return now;
 };
 
@@ -34,7 +34,6 @@ export const createTask = async (req, res) => {
             completed: false,
         });
         await newTask.save();
-        console.log('Nueva tarea creada:', newTask);
 
         // Programar la notificación una hora después
         const notificationTime = setNotificationTime();
