@@ -112,6 +112,30 @@ agenda.define('sendTaskNotification', async (job) => {
 
 
 
+// agenda.define("sendTaskNotification", async (job) => {
+//     console.log("Ejecutando job:", job.attrs);
+
+//     const { deviceToken, title } = job.attrs.data; 
+
+//     const mensaje = {
+//         notification: {
+//             title: title || "Notificación",
+//             body: "Este es un mensaje de prueba"
+//         },
+//         token: deviceToken
+//     };
+
+//     try {
+//         const response = await admin.messaging().send(mensaje);
+//         console.log("Notificación enviada con éxito:", response);
+//     } catch (error) {
+//         console.error("Error al enviar la notificación:", error);
+//     }
+// });
+
+
+
+
 
 
 
